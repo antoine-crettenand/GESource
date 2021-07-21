@@ -1,14 +1,18 @@
 package com.example.fountainfinder.db;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.clustering.ClusterItem;
 
 import java.util.Random;
 
 @Entity
-public final class Fountain {
+public final class Fountain implements ClusterItem {
 
     public Fountain() {
     }
@@ -69,4 +73,21 @@ public final class Fountain {
     @ColumnInfo(name = "reported")
     public int reported;
 
+    @NonNull
+    @Override
+    public LatLng getPosition() {
+        return new LatLng(latitude, longitude);
+    }
+
+    @Nullable
+    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    @Nullable
+    @Override
+    public String getSnippet() {
+        return address;
+    }
 }
