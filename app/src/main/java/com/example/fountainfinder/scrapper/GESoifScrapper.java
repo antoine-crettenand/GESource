@@ -1,40 +1,25 @@
 package com.example.fountainfinder.scrapper;
 
 import android.app.Activity;
-import android.util.JsonReader;
-import android.util.Log;
-import android.util.MalformedJsonException;
 import android.widget.Toast;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.work.impl.utils.LiveDataUtils;
 import com.android.volley.*;
 import com.android.volley.toolbox.*;
 import com.example.fountainfinder.db.Fountain;
-import com.google.android.gms.common.util.JsonUtils;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.function.BiFunction;
 
 public class GESoifScrapper {
-    private static final String apiURLFormat = "https://www.ge-soif.ch/api/fountain/read_radius.php?swLat=%f&swLng=%f&neLat=%f&neLng=%f";
+    private static final String API_STRING_FORMAT = "https://www.ge-soif.ch/api/fountain/read_radius.php?swLat=%f&swLng=%f&neLat=%f&neLng=%f";
     private static final String TAG = "GESOIF_SCRAPPER";
 
     public static LiveData<List<Fountain>> getFountainsFromRadius(Activity activity, float swLat, float swLong, float neLat, float neLong) {
         MutableLiveData<List<Fountain>> mutableLiveData = new MutableLiveData<>();
-        String path = String.format(Locale.FRENCH, apiURLFormat, swLat, swLong, neLat, neLong);
+        String path = String.format(Locale.FRENCH, API_STRING_FORMAT, swLat, swLong, neLat, neLong);
 
         // Instantiate the cache
         Cache cache = new DiskBasedCache(activity.getCacheDir(), 1024 * 1024); // 1MB cap
@@ -48,16 +33,23 @@ public class GESoifScrapper {
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, path, response -> {
             try {
-                JSONArray jsonObject = new JSONArray(response);
+                JSONArray jsonArray = new JSONArray(response);
                 List<Fountain> fountains = new ArrayList<>();
-                for (int i = 0; i < jsonObject.length(); i++) {
-                    JSONObject fountain = jsonObject.getJSONObject(i);
-                    String id = fountain.getString("id");
-                    String title = fountain.getString("title");
-                    double latitude = fountain.getDouble("latitude");
-                    double longitude = fountain.getDouble("longitude");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    String id = jsonObject.getString("id");
+                    String title = jsonObject.getString("title");
+                    double latitude = jsonObject.getDouble("latitude");
+                    double longitude = jsonObject.getDouble("longitude");
+                    String time = jsonObject.getString("time");
+                    String address = jsonObject.getString("address");
+                    String active = jsonObject.getString("active");
+                    int nbottles = jsonObject.getInt("nbottles");
+                    String img = jsonObject.getString("img");
+                    String source = jsonObject.getString("source");
+                    String reported = jsonObject.getString("reported");
 
-                    Fountain f = new Fountain(title, latitude, longitude);
+                    Fountain f = new Fountain(id, title, latitude, longitude, time, address, active, nbottles, img, source, reported);
                     fountains.add(f);
                 }
                 mutableLiveData.setValue(fountains);

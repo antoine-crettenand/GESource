@@ -11,6 +11,9 @@ import com.google.maps.android.clustering.ClusterItem;
 
 import java.util.Random;
 
+/**
+ * Class abstracts a fountain as an entity with a name, location (in spherical coordinates) and other miscellaneous.
+ */
 @Entity
 public final class Fountain implements ClusterItem {
 
@@ -26,8 +29,9 @@ public final class Fountain implements ClusterItem {
     }
 
     @Ignore
-    public Fountain(int id, String title, double latitude, double longitude, float time, String address, int active, int nbottles, String img, String source, int reported) {
-        this.id = id;
+    public Fountain(String id, String title, double latitude, double longitude, String time, String address, String active, int nbottles, String img, String source, String reported) {
+        this.id = new Random().nextInt();
+        this.idGE = id;
         this.title = title;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -43,6 +47,8 @@ public final class Fountain implements ClusterItem {
     @PrimaryKey
     public int id;
 
+    public String idGE;
+
     @ColumnInfo(name = "name")
     public String title;
 
@@ -53,13 +59,13 @@ public final class Fountain implements ClusterItem {
     public double longitude;
 
     @ColumnInfo(name = "time")
-    public float time;
+    public String time;
 
     @ColumnInfo(name = "address")
     public String address;
 
     @ColumnInfo(name = "active")
-    public int active;
+    public String active;
 
     @ColumnInfo(name = "nbottles")
     public int nbottles;
@@ -71,7 +77,7 @@ public final class Fountain implements ClusterItem {
     public String source;
 
     @ColumnInfo(name = "reported")
-    public int reported;
+    public String reported;
 
     @NonNull
     @Override

@@ -1,10 +1,7 @@
 package com.example.fountainfinder;
 
 import android.annotation.SuppressLint;
-import android.location.Location;
-import android.location.LocationListener;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import com.example.fountainfinder.db.AppDatabase;
@@ -15,13 +12,11 @@ import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.List;
 
-public class LocateFountainActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
+public class LocateFountainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     //TODO. ADD DEPENDENCY INJECTION
     private AppDatabase db;
-    private ClusterManager<Fountain> clusterManager;
     private static final LatLng DEFAULT_LOCATION_GENEVA = new LatLng(46.12266, 6.09212);
-    private LatLng userLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,27 +43,21 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
     @SuppressLint("PotentialBehaviorOverride")
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        if (userLocation == null)
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(DEFAULT_LOCATION_GENEVA));
-        else googleMap.moveCamera(CameraUpdateFactory.newLatLng(userLocation));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(DEFAULT_LOCATION_GENEVA));
+
+        UiSettings uiSettings = googleMap.getUiSettings();
+        uiSettings.setZoomControlsEnabled(true);
+
 
         LatLngBounds latLngBounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
 
-        clusterManager = new ClusterManager<>(this, googleMap);
+        ClusterManager<Fountain> clusterManager = new ClusterManager<>(this, googleMap);
         googleMap.setOnCameraIdleListener(clusterManager);
         googleMap.setOnMarkerClickListener(clusterManager);
 
         // Retrieve all markers from the database
-        LiveData<List<Fountain>> allFountains = db.getAll(this, latLngBounds.southwest, latLngBounds.northeast);
+        LiveData<List<Fountain>> allFountains = db.queryAllFountains(this, latLngBounds.southwest, latLngBounds.northeast);
 
-        allFountains.observe(this, fountains -> {
-            for (Fountain fountain : fountains)
-                clusterManager.addItem(fountain);
-        });
-    }
-
-    @Override
-    public void onLocationChanged(@NonNull Location location) {
-        this.userLocation = new LatLng(location.getLatitude(), location.getLongitude());
+        allFountains.observe(this, clusterManager::addItems);
     }
 }
