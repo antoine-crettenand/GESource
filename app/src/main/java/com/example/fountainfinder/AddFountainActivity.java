@@ -24,7 +24,7 @@ import java.util.concurrent.Executors;
 public class AddFountainActivity extends AppCompatActivity {
 
     private static AppDatabase db;
-    private static final String TAG = "ADD_FOUNTAIN_ACTIVITY";
+    private static final String TAG = AddFountainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
