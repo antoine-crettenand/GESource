@@ -10,6 +10,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.OnLifecycleEvent;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -18,14 +20,13 @@ import java.util.Random;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        linkButtonToAddFountainActivity();
         if (isServiceAvailable())
             linkButtonToMapsActivity();
     }
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     private void linkButtonToAddFountainActivity(){
         Button btn = findViewById(R.id.btnToAddActivity);
         btn.setOnClickListener(v -> {

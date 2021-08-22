@@ -54,6 +54,8 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
         mapFragment.getMapAsync(this);
     }
 
+
+
     /**
      * Gets the current location of the device, and positions the map's camera.
      */

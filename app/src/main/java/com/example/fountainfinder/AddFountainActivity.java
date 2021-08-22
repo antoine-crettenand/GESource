@@ -50,9 +50,10 @@ public class AddFountainActivity extends AppCompatActivity {
             String name = nameTV.getText().toString();
             float latitude = Float.parseFloat(latTV.getText().toString());
             float longitude = Float.parseFloat(longTV.getText().toString());
+            Fountain ft = new Fountain(name, latitude, longitude);
 
-            db.insert(new Fountain(name, latitude, longitude));
-            finish();
+            if (db.insert(ft))
+                finish();
         });
     }
 }

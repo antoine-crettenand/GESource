@@ -3,12 +3,14 @@ package com.example.fountainfinder.db;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import com.example.fountainfinder.scrapper.GESoifScrapper;
+import com.google.android.gms.common.api.internal.LifecycleActivity;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
@@ -20,13 +22,12 @@ import java.util.concurrent.Executors;
 public abstract class AppDatabase extends RoomDatabase {
     public abstract FountainDao fountainDao();
 
-    private static AppDatabase INSTANCE;
-    private static final String TAG = "APP_DATABASE";
+    private static final String TAG = AppDatabase.class.getSimpleName();
 
     public synchronized boolean insert(Fountain fountain) {
         Executors.defaultThreadFactory().newThread(() -> {
             fountainDao().insertAll(fountain);
-            Log.i(TAG, String.format("Successfully added %s at (%f, %f) to fl_database", fountain.title, fountain.latitude, fountain.longitude));
+            Log.i(TAG, String.format("Successfully added %s at (%.4f, %.4f) to fl_database", fountain.title, fountain.latitude, fountain.longitude));
         }).start();
         return true;
     }
