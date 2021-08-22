@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     private void linkButtonToAddFountainActivity(){
         Button btn = findViewById(R.id.btnToAddActivity);
         btn.setOnClickListener(v -> {
