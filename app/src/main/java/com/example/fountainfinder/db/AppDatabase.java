@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Fountain.class}, version = 4)
+@Database(entities = {Fountain.class}, version = 5)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract FountainDao fountainDao();
 
@@ -40,22 +40,6 @@ public abstract class AppDatabase extends RoomDatabase {
             data.observeForever(fountains -> Executors.defaultThreadFactory().newThread(() -> fountainDao().insertAll(fountains.toArray(new Fountain[0]))).start());
             return data;
         }
-    }
-
-    public static AppDatabase getDatabase(final Context context) {
-        if (INSTANCE == null) {
-            synchronized (AppDatabase.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                            AppDatabase.class, "fl_database")
-                            // Wipes and rebuilds instead of migrating
-                            // if no Migration object.
-                            .fallbackToDestructiveMigration()
-                            .build();
-                }
-            }
-        }
-        return INSTANCE;
     }
 
     private LiveData<List<Fountain>> queryAllFountainsOnline(Activity activity, LatLng sw, LatLng ne) {

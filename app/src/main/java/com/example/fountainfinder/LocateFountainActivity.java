@@ -19,14 +19,17 @@ import com.google.android.gms.maps.model.*;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
-
+import dagger.hilt.android.AndroidEntryPoint;
+import javax.inject.Inject;
 import java.util.List;
 
+@AndroidEntryPoint
 public class LocateFountainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    @Inject
+    public AppDatabase db;
+
     private static final float DEFAULT_ZOOM = 15;
-    //TODO. ADD DEPENDENCY INJECTION
-    private AppDatabase db;
     private static final LatLng DEFAULT_LOCATION_GENEVA = new LatLng(46.12266, 6.09212);
     private boolean locationPermissionGranted;
     private final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
@@ -42,10 +45,8 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_locate_fountain);
-        if (db == null)
-            db = AppDatabase.getDatabase(this);
-
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()

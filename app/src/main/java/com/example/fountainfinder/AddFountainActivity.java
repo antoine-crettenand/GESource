@@ -16,23 +16,24 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.common.util.concurrent.ListenableFuture;
+import dagger.hilt.android.AndroidEntryPoint;
 
+import javax.inject.Inject;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+@AndroidEntryPoint
 public class AddFountainActivity extends AppCompatActivity {
 
-    private static AppDatabase db;
+    @Inject
+    AppDatabase db;
     private static final String TAG = AddFountainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_fountain);
-
-        db = AppDatabase.getDatabase(this);
-
         init();
     }
 

@@ -4,21 +4,15 @@ import android.app.Application;
 import android.os.AsyncTask;
 import androidx.lifecycle.LiveData;
 
+import javax.inject.Inject;
 import java.util.List;
 
 public class FountainRepository {
 
-
-    private FountainDao fountainDao;
-    private LiveData<List<Fountain>> allFountains;
-
-    FountainRepository(Application application) {
-        AppDatabase db = AppDatabase.getDatabase(application);
-        fountainDao = db.fountainDao();
-        allFountains = fountainDao.getAll();
-    }
+    @Inject
+    FountainDao fountainDao;
 
     LiveData<List<Fountain>> getAll() {
-        return allFountains;
+        return fountainDao.getAll();
     }
 }
