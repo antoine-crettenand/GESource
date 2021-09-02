@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
+import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -95,5 +96,65 @@ public final class Fountain implements ClusterItem {
     @Override
     public String getSnippet() {
         return address;
+    }
+
+    @Override
+    public String toString() {
+        return "Fountain{" +
+                "id=" + id +
+                ", idGE='" + idGE + '\'' +
+                ", title='" + title + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", time='" + time + '\'' +
+                ", address='" + address + '\'' +
+                ", active='" + active + '\'' +
+                ", nbottles=" + nbottles +
+                ", img='" + img + '\'' +
+                ", source='" + source + '\'' +
+                ", reported='" + reported + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Fountain fountain = (Fountain) o;
+
+        if (id != fountain.id) return false;
+        if (Double.compare(fountain.latitude, latitude) != 0) return false;
+        if (Double.compare(fountain.longitude, longitude) != 0) return false;
+        if (nbottles != fountain.nbottles) return false;
+        if (idGE != null ? !idGE.equals(fountain.idGE) : fountain.idGE != null) return false;
+        if (title != null ? !title.equals(fountain.title) : fountain.title != null) return false;
+        if (time != null ? !time.equals(fountain.time) : fountain.time != null) return false;
+        if (address != null ? !address.equals(fountain.address) : fountain.address != null) return false;
+        if (active != null ? !active.equals(fountain.active) : fountain.active != null) return false;
+        if (img != null ? !img.equals(fountain.img) : fountain.img != null) return false;
+        if (source != null ? !source.equals(fountain.source) : fountain.source != null) return false;
+        return reported != null ? reported.equals(fountain.reported) : fountain.reported == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = id;
+        result = 31 * result + (idGE != null ? idGE.hashCode() : 0);
+        result = 31 * result + (title != null ? title.hashCode() : 0);
+        temp = Double.doubleToLongBits(latitude);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(longitude);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (time != null ? time.hashCode() : 0);
+        result = 31 * result + (address != null ? address.hashCode() : 0);
+        result = 31 * result + (active != null ? active.hashCode() : 0);
+        result = 31 * result + nbottles;
+        result = 31 * result + (img != null ? img.hashCode() : 0);
+        result = 31 * result + (source != null ? source.hashCode() : 0);
+        result = 31 * result + (reported != null ? reported.hashCode() : 0);
+        return result;
     }
 }

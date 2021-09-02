@@ -1,26 +1,23 @@
 package com.example.fountainfinder.db;
 
 import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 import androidx.room.Database;
-import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import com.example.fountainfinder.scrapper.GESoifScrapper;
-import com.google.android.gms.common.api.internal.LifecycleActivity;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Fountain.class}, version = 5)
+@Database(entities = {Fountain.class}, version = 6)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract FountainDao fountainDao();
+
+    public GESoifScrapper dataProvider = GESoifScrapper.getInstance();
 
     private static final String TAG = AppDatabase.class.getSimpleName();
 
@@ -32,22 +29,86 @@ public abstract class AppDatabase extends RoomDatabase {
         return true;
     }
 
-    public LiveData<List<Fountain>> queryAllFountains(Activity activity, LatLng sw, LatLng ne) {
+    public LiveData<List<Fountain>> getAllFountainsWithinRectangle(Activity activity, LatLng sw, LatLng ne) {
         if (!isInternetAvailable()) {
-            return queryAllFountainsOffline(sw, ne);
+            return queryAllFountainsWithinRectangleOffline(sw, ne);
         } else {
-            LiveData<List<Fountain>> data = queryAllFountainsOnline(activity, sw, ne);
-            // Update local database
-            data.observeForever(fountains -> Executors.defaultThreadFactory().newThread(() -> fountainDao().insertAll(fountains.toArray(new Fountain[0]))).start());
-            return data;
+            LiveData<List<Fountain>> data = queryAllFountainsWithinRectangleOnline(activity, sw, ne);
+
+            // Filter out dirty data
+            LiveData<List<Fountain>> filteredData = Transformations.map(data, AppDatabase::sanitize);
+
+            // Synchronize local database with remote one TODO configure a lifecycle instead of observing forever.
+            filteredData.observeForever(fountains -> Executors.defaultThreadFactory().newThread(() -> {
+                fountainDao().insertAll(fountains.toArray(new Fountain[0]));
+            }).start());
+
+            return filteredData;
         }
     }
 
-    private LiveData<List<Fountain>> queryAllFountainsOnline(Activity activity, LatLng sw, LatLng ne) {
-        return GESoifScrapper.getFountainsFromRadius(activity, ((float) sw.latitude), ((float) sw.longitude), ((float) ne.latitude), ((float) ne.longitude));
+    static boolean isSane(Fountain f) {
+        if (f.title.contains("undefined"))
+            return false;
+
+        if (f.address.contains("false"))
+            return false;
+
+        return !f.title.contains("null") && !f.title.contains("false");
     }
 
-    private LiveData<List<Fountain>> queryAllFountainsOffline(LatLng sw, LatLng ne) {
+    private static double toRad(double value) {
+        return value * Math.PI / 180d;
+    }
+
+    private static double haversine(LatLng f1, LatLng f2) {
+        final double UNIT_KM_TO_M = 0.001d; // ration m/km
+        final double R = 6371.008d; // Radius of the earth, in km
+        double lat1 = f1.latitude;
+        double lat2 = f2.latitude;
+        double lon1 = f1.longitude;
+        double lon2 = f2.longitude;
+        double latDistance = toRad(lat2 - lat1);
+        double lonDistance = toRad(lon2 - lon1);
+        double a = Math.sin(latDistance / 2d) * Math.sin(latDistance / 2d) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                        Math.sin(lonDistance / 2d) * Math.sin(lonDistance / 2d);
+        double c = 2d * Math.atan2(Math.sqrt(a), Math.sqrt(1d - a));
+        return R * c * UNIT_KM_TO_M;
+    }
+
+    // Naive O(n^2) algorithm TODO Find a O(n) complexity alternative
+    // Reordering happens
+    static List<Fountain> sanitize(List<Fountain> source) {
+        List<Fountain> individuallySanitizedSource = new ArrayList<>();
+
+        for (Fountain f : source) {
+            boolean fIsTheClusterCenter = true;
+
+            if (!isSane(f))
+                continue;
+
+            for (Fountain g : source) {
+                if (f.equals(g))
+                    continue;
+
+                if (haversine(f.getPosition(), g.getPosition()) < 1)
+                    if (g.title.contains(f.title)) {
+                        fIsTheClusterCenter = false;
+                    }
+            }
+
+            if (fIsTheClusterCenter)
+                individuallySanitizedSource.add(f);
+        }
+        return individuallySanitizedSource;
+    }
+
+    private LiveData<List<Fountain>> queryAllFountainsWithinRectangleOnline(Activity activity, LatLng sw, LatLng ne) {
+        return dataProvider.getFountainsFromRadius(activity, ((float) sw.latitude), ((float) sw.longitude), ((float) ne.latitude), ((float) ne.longitude));
+    }
+
+    private LiveData<List<Fountain>> queryAllFountainsWithinRectangleOffline(LatLng sw, LatLng ne) {
         return Transformations.map(fountainDao().getAll(), input -> {
             List<Fountain> filtered = new ArrayList<>();
             for (Fountain f : input)
@@ -58,6 +119,7 @@ public abstract class AppDatabase extends RoomDatabase {
         });
     }
 
+    //@TODO find a better way to do this ?
     private boolean isInternetAvailable() {
         String command = "ping -c 1 google.com";
         try {

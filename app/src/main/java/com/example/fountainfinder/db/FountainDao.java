@@ -14,6 +14,9 @@ public interface FountainDao {
     LiveData<List<Fountain>> getAll();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insert(Fountain fountain);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(Fountain... fountains);
 
     @Delete
