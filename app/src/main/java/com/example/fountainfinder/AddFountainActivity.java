@@ -1,33 +1,21 @@
 package com.example.fountainfinder;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
-import androidx.annotation.FontRes;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.work.*;
-import com.example.fountainfinder.db.AppDatabase;
+import com.example.fountainfinder.db.FountainDataRepository;
+import com.example.fountainfinder.db.local.AppDatabase;
 import com.example.fountainfinder.db.Fountain;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.common.util.concurrent.ListenableFuture;
 import dagger.hilt.android.AndroidEntryPoint;
 
 import javax.inject.Inject;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 @AndroidEntryPoint
 public class AddFountainActivity extends AppCompatActivity {
 
     @Inject
-    AppDatabase db;
+    FountainDataRepository fountainDataRepository;
     private static final String TAG = AddFountainActivity.class.getSimpleName();
 
     @Override
@@ -52,8 +40,9 @@ public class AddFountainActivity extends AppCompatActivity {
             float longitude = Float.parseFloat(longTV.getText().toString());
             Fountain ft = new Fountain(name, latitude, longitude);
 
-            if (db.insert(ft))
-                finish();
+            fountainDataRepository.insert(ft).observe(this, value -> {
+                if (value) finish();
+            });
         });
     }
 }

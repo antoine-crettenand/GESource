@@ -1,4 +1,4 @@
-package com.example.fountainfinder.scrapper;
+package com.example.fountainfinder.db.remote.scrapper;
 
 import android.app.Activity;
 import android.widget.Toast;
@@ -7,28 +7,21 @@ import androidx.lifecycle.MutableLiveData;
 import com.android.volley.*;
 import com.android.volley.toolbox.*;
 import com.example.fountainfinder.db.Fountain;
+import com.google.android.gms.maps.model.LatLng;
+import dagger.Provides;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.inject.Singleton;
 import java.util.*;
 
-public class GESoifScrapper {
+public class GESoifScrapper implements RemoteDataSource {
     private static final String API_STRING_FORMAT = "https://www.ge-soif.ch/api/fountain/read_radius.php?swLat=%f&swLng=%f&neLat=%f&neLng=%f";
-    private static final String TAG = "GESOIF_SCRAPPER";
+    private static final String TAG = GESoifScrapper.class.getSimpleName();
 
-    private static GESoifScrapper INSTANCE = null;
-
-    private GESoifScrapper(){}
-
-    public static GESoifScrapper getInstance(){
-        if (INSTANCE == null)
-            INSTANCE = new GESoifScrapper();
-        return INSTANCE;
-    }
-
-    public LiveData<List<Fountain>> getFountainsFromRadius(Activity activity, float swLat, float swLong, float neLat, float neLong) {
-        MutableLiveData<List<Fountain>> mutableLiveData = new MutableLiveData<>();
+    public LiveData<Collection<Fountain>> getFountainsFromRadius(Activity activity, double swLat, double swLong, double neLat, double neLong) {
+        MutableLiveData<Collection<Fountain>> mutableLiveData = new MutableLiveData<>();
         String path = String.format(Locale.FRENCH, API_STRING_FORMAT, swLat, swLong, neLat, neLong);
 
         // Instantiate the cache
@@ -74,6 +67,11 @@ public class GESoifScrapper {
             fountains.add(f);
         }
         return fountains;
+    }
+
+    @Override
+    public LiveData<Collection<Fountain>> fetch(Activity activity, LatLng ne, LatLng sw) {
+        return getFountainsFromRadius(activity, ne.latitude, ne.longitude, sw.latitude, sw.longitude);
     }
 }
 

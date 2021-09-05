@@ -1,8 +1,9 @@
-package com.example.fountainfinder.db;
+package com.example.fountainfinder.db.local;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.*;
 import androidx.work.ListenableWorker;
+import com.example.fountainfinder.db.Fountain;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;

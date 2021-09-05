@@ -1,6 +1,7 @@
 package com.example.fountainfinder.db;
 
-import com.example.fountainfinder.scrapper.GESoifScrapper;
+import com.example.fountainfinder.db.remote.scrapper.GESoifScrapper;
+import com.example.fountainfinder.db.sanitizer.DataSanitizer;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,13 +16,15 @@ import static org.junit.Assert.*;
 public class AppDatabaseTest {
 
     List<Fountain> fountains;
+    DataSanitizer dataSanitizer;
 
     @Before
     public void initMockData() throws FileNotFoundException, JSONException {
         File file = new File(System.getProperty("user.dir") + "/../db_json.txt");
         Scanner scanner = new Scanner(file);
         String response = scanner.nextLine();
-        this.fountains = GESoifScrapper.getInstance().JSONToFountainList(response);
+        this.fountains = new GESoifScrapper().JSONToFountainList(response);
+        this.dataSanitizer = new DataSanitizer();
     }
 
     private Set<Fountain> helperInstersectionOfCollections(Collection<Fountain> x, Collection<Fountain> y) {
@@ -37,20 +40,25 @@ public class AppDatabaseTest {
     }
 
     @Test
-    public void doubleSanitizeShouldNotHaveAnyAdditionnalEffects() throws Exception {
-        List<Fountain> sanitizedDataA = AppDatabase.sanitize(fountains);
-        List<Fountain> sanitizedDataB = AppDatabase.sanitize(sanitizedDataA);
+    public void doubleSanitizeShouldNotHaveAnyAdditionnalEffects() {
+        Collection<Fountain> sanitizedDataA = dataSanitizer.sanitize(fountains);
+        List<Fountain> sanitizedDataAbis = new ArrayList<>(sanitizedDataA);
 
-        sanitizedDataA.sort(Comparator.comparing(o -> o.title));
-        sanitizedDataB.sort(Comparator.comparing(o -> o.title));
+        Collection<Fountain> sanitizedDataB = dataSanitizer.sanitize(sanitizedDataAbis);
+        List<Fountain> sanitizedDataBbis = new ArrayList<>(sanitizedDataB);
 
-        assertArrayEquals(sanitizedDataA.toArray(), sanitizedDataB.toArray());
+        sanitizedDataAbis.sort(Comparator.comparing(o -> o.title));
+        sanitizedDataBbis.sort(Comparator.comparing(o -> o.title));
+
+        assertArrayEquals(sanitizedDataAbis.toArray(), sanitizedDataBbis.toArray());
     }
 
     @Test
-    public void sanitizeTest() throws Exception {
-        List<Fountain> sanitizedData = AppDatabase.sanitize(fountains);
-        sanitizedData.sort(Comparator.comparing(o -> o.title));
+    public void sanitizeTest() {
+        Collection<Fountain> sanitizedData = dataSanitizer.sanitize(fountains);
+        List<Fountain> sanitizedDatabis = new ArrayList<>(sanitizedData);
+
+        sanitizedDatabis.sort(Comparator.comparing(o -> o.title));
         for (Fountain f : sanitizedData) {
             //        System.out.println(f.title);
         }

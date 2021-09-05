@@ -1,4 +1,4 @@
-package com.example.fountainfinder.db;
+package com.example.fountainfinder.db.local;
 
 import android.content.Context;
 import androidx.room.Room;
