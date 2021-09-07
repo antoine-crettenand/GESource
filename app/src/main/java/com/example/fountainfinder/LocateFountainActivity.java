@@ -10,36 +10,34 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
-import com.example.fountainfinder.db.AppDatabase;
+import com.example.fountainfinder.db.FountainDataRepository;
+import com.example.fountainfinder.db.local.AppDatabase;
 import com.example.fountainfinder.db.Fountain;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
 import dagger.hilt.android.AndroidEntryPoint;
+
 import javax.inject.Inject;
-import java.util.List;
+import java.util.Collection;
 
 @AndroidEntryPoint
 public class LocateFountainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     @Inject
-    public AppDatabase db;
+    public FountainDataRepository fountainDataRepository;
 
     private static final float DEFAULT_ZOOM = 15;
     private static final LatLng DEFAULT_LOCATION_GENEVA = new LatLng(46.12266, 6.09212);
     private boolean locationPermissionGranted;
     private final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private GoogleMap map;
-    private String TAG = LocateFountainActivity.class.getSimpleName();
+    private final String TAG = LocateFountainActivity.class.getSimpleName();
     private Location lastKnownLocation;
     private FusedLocationProviderClient fusedLocationProviderClient;
-
-    public LocateFountainActivity() {
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +51,7 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
+
 
     /**
      * Gets the current location of the device, and positions the map's camera.
@@ -117,13 +116,10 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         locationPermissionGranted = false;
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    locationPermissionGranted = true;
-                }
+        if (requestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {// If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                locationPermissionGranted = true;
             }
         }
         updateLocationUI();
@@ -188,7 +184,7 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
         map.setOnMarkerClickListener(clusterManager);
 
         // Retrieve all markers from the database
-        LiveData<List<Fountain>> allFountains = db.queryAllFountains(this, latLngBounds.southwest, latLngBounds.northeast);
+        LiveData<Collection<Fountain>> allFountains = fountainDataRepository.getAll(this, latLngBounds.southwest, latLngBounds.northeast);
 
         allFountains.observe(this, clusterManager::addItems);
     }
