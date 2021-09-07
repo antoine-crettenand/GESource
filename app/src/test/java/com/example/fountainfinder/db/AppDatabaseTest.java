@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 
 public class AppDatabaseTest {
 
-    List<Fountain> fountains;
+    Collection<Fountain> fountains;
     DataSanitizer dataSanitizer;
 
     @Before
@@ -23,19 +23,13 @@ public class AppDatabaseTest {
         File file = new File(System.getProperty("user.dir") + "/../db_json.txt");
         Scanner scanner = new Scanner(file);
         String response = scanner.nextLine();
-        this.fountains = new GESoifScrapper().JSONToFountainList(response);
+        this.fountains = new GESoifScrapper().convertJSONToFountainCollection(response);
         this.dataSanitizer = new DataSanitizer();
     }
 
-    private Set<Fountain> helperInstersectionOfCollections(Collection<Fountain> x, Collection<Fountain> y) {
+    private Set<Fountain> helperSubtractionOfCollections(Collection<Fountain> x, Collection<Fountain> y) {
         Set<Fountain> buffer = new HashSet<>(x);
-
-        for (Fountain i : x) {
-            if (y.contains(i)) {
-                buffer.remove(i);
-            }
-        }
-
+        buffer.removeIf(y::contains);
         return buffer;
     }
 
@@ -63,7 +57,7 @@ public class AppDatabaseTest {
             //        System.out.println(f.title);
         }
 
-        Set<Fountain> removedFountains = helperInstersectionOfCollections(fountains, sanitizedData);
+        Set<Fountain> removedFountains = helperSubtractionOfCollections(fountains, sanitizedData);
 
         System.out.println("Removed Fountains....");
         for (Fountain i : removedFountains)

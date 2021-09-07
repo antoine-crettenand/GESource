@@ -29,14 +29,18 @@ public class FountainDataRepository {
     }
 
     public LiveData<Boolean> insert(Fountain... fountain) {
-        return localDataSource.update(Arrays.asList(fountain));
+        return insert(Arrays.asList(fountain));
+    }
+
+    public LiveData<Boolean> insert(Collection<Fountain> fountains) {
+        return localDataSource.update(fountains);
     }
 
     public LiveData<Collection<Fountain>> getAll(FragmentActivity activity, LatLng ne, LatLng sw) {
         long currentTime = System.currentTimeMillis();
         if (isInternetAvailable() && currentTime - TIMECODE_OF_PREVIOUS_API_CALL >= FIVE_MINUTES_IN_MS) {
             LiveData<Collection<Fountain>> remoteData = remoteDataSource.fetch(activity, ne, sw);
-            TIMECODE_OF_PREVIOUS_API_CALL = System.currentTimeMillis();
+            TIMECODE_OF_PREVIOUS_API_CALL = currentTime;
 
             // sanitize data
             LiveData<Collection<Fountain>> sanitizedRemoteData = Transformations.map(remoteData, dataSanitizer::sanitize);

@@ -8,12 +8,10 @@ import com.android.volley.*;
 import com.android.volley.toolbox.*;
 import com.example.fountainfinder.db.Fountain;
 import com.google.android.gms.maps.model.LatLng;
-import dagger.Provides;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.inject.Singleton;
 import java.util.*;
 
 public class GESoifScrapper implements RemoteDataSource {
@@ -36,17 +34,21 @@ public class GESoifScrapper implements RemoteDataSource {
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, path, response -> {
             try {
-                mutableLiveData.setValue(JSONToFountainList(response));
+                mutableLiveData.setValue(convertJSONToFountainCollection(response));
+                queue.stop();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        }, error -> Toast.makeText(activity.getApplicationContext(), "An error occurred retrieving data. Try again later!", Toast.LENGTH_SHORT).show());
+        }, error -> {
+            Toast.makeText(activity.getApplicationContext(), "An error occurred retrieving data. Try again later!", Toast.LENGTH_SHORT).show();
+            queue.stop();
+        });
         queue.add(stringRequest);
 
         return mutableLiveData;
     }
 
-    public List<Fountain> JSONToFountainList(String data) throws JSONException {
+    public Collection<Fountain> convertJSONToFountainCollection(String data) throws JSONException {
         JSONArray jsonArray = new JSONArray(data);
         List<Fountain> fountains = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {

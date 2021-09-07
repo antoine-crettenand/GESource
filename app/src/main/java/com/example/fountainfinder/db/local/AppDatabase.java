@@ -14,19 +14,11 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.*;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Fountain.class}, version = 9)
+@Database(entities = {Fountain.class}, version = 10)
 public abstract class AppDatabase extends RoomDatabase implements LocalDataSource {
     public abstract FountainDao fountainDao();
 
     private static final String TAG = AppDatabase.class.getSimpleName();
-
-    public synchronized boolean insert(Collection<Fountain> fountain) {
-        Thread thread = Executors.defaultThreadFactory().newThread(() -> {
-            fountainDao().insertAll(fountain.toArray(new Fountain[0]));
-        });
-        thread.start();
-        return true;
-    }
 
     @Override
     public LiveData<Collection<Fountain>> fetch(Activity activity, LatLng ne, LatLng sw) {
@@ -49,5 +41,13 @@ public abstract class AppDatabase extends RoomDatabase implements LocalDataSourc
                     filtered.add(f);
             return filtered;
         });
+    }
+
+    private synchronized boolean insert(Collection<Fountain> fountain) {
+        Thread thread = Executors.defaultThreadFactory().newThread(() -> {
+            fountainDao().insertAll(fountain.toArray(new Fountain[0]));
+        });
+        thread.start();
+        return true;
     }
 }
