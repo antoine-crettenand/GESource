@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">Fountain Finder</string>
+    <string name="app_name">Source</string>
+    <string name="find_the_nearest_fountain">Find the nearest fountain!</string>
+    <string name="add_a_new_fountain">Add a new fountain</string>
 </resources>

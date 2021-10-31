@@ -15,21 +15,16 @@ import org.json.JSONObject;
 import java.util.*;
 
 public class GESoifScrapper implements RemoteDataSource {
-    private static final String API_STRING_FORMAT = "https://www.ge-soif.ch/api/fountain/read_radius.php?swLat=%f&swLng=%f&neLat=%f&neLng=%f";
+    private static final String GET_API_STRING_FORMAT = "https://www.ge-soif.ch/api/fountain/read_radius.php?swLat=%f&swLng=%f&neLat=%f&neLng=%f";
+    private static final String POST_API_STRING_FORMAT = "https://www.ge-soif.ch/api/fountain/add_fountain.php";
     private static final String TAG = GESoifScrapper.class.getSimpleName();
 
     public LiveData<Collection<Fountain>> getFountainsFromRadius(Activity activity, double swLat, double swLong, double neLat, double neLong) {
         MutableLiveData<Collection<Fountain>> mutableLiveData = new MutableLiveData<>();
-        String path = String.format(Locale.FRENCH, API_STRING_FORMAT, swLat, swLong, neLat, neLong);
-
-        // Instantiate the cache
-        Cache cache = new DiskBasedCache(activity.getCacheDir(), 1024 * 1024); // 1MB cap
-
-        // Set up the network to use HttpURLConnection as the HTTP client.
-        Network network = new BasicNetwork(new HurlStack());
+        String path = String.format(Locale.FRENCH, GET_API_STRING_FORMAT, swLat, swLong, neLat, neLong);
 
         // Instantiate the RequestQueue.
-        RequestQueue queue = new RequestQueue(cache, network);
+        RequestQueue queue = Volley.newRequestQueue(activity);
         queue.start();
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, path, response -> {
@@ -45,6 +40,40 @@ public class GESoifScrapper implements RemoteDataSource {
         });
         queue.add(stringRequest);
 
+        return mutableLiveData;
+    }
+
+    @Override
+    public LiveData<Boolean> update(Activity activity, Fountain fountain) {
+        MutableLiveData<Boolean> mutableLiveData = new MutableLiveData<>(false);
+
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(activity);
+        queue.start();
+
+        JSONObject postData = new JSONObject();
+
+        try {
+            postData.put("id", fountain.id);
+            postData.put("title", fountain.title);
+            postData.put("latitude", fountain.latitude);
+            postData.put("longitude", fountain.longitude);
+            postData.put("time", fountain.time);
+            postData.put("address", fountain.address);
+            postData.put("active", 0);
+            postData.put("nBottles", 0);
+            postData.put("img", "");
+            postData.put("source", "null");
+            postData.put("reported", 0);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest fountainRequest = new JsonObjectRequest(Request.Method.POST, POST_API_STRING_FORMAT, postData, response -> {
+            mutableLiveData.setValue(true);
+            queue.stop();
+        }, null);
+        queue.add(fountainRequest);
         return mutableLiveData;
     }
 

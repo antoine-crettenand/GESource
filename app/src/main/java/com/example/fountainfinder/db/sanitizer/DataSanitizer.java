@@ -6,6 +6,8 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.*;
 
 public class DataSanitizer {
+    private static final String[] TITLE_BLOCKLIST = {"undefined", "null", "false"};
+    private static final String[] ADDRESS_BLOCKLIST = {"false"};
 
     private static final String TAG = DataSanitizer.class.getSimpleName();
     private static final double CLUSTER_SIZE_THRESHOLD = 25; //in meters
@@ -31,14 +33,16 @@ public class DataSanitizer {
         return R * c * UNIT_KM_TO_M;
     }
 
+    private static boolean contains(String x, String[] y) {
+        for (String s : y) {
+            if (x.contains(s))
+                return true;
+        }
+        return true;
+    }
+
     private boolean isSane(Fountain f) {
-        if (f.title.contains("undefined"))
-            return false;
-
-        if (f.address.contains("false"))
-            return false;
-
-        return !f.title.contains("null") && !f.title.contains("false");
+        return !contains(f.address, ADDRESS_BLOCKLIST) && !contains(f.title, TITLE_BLOCKLIST);
     }
 
     // Naive O(n^2) algorithm

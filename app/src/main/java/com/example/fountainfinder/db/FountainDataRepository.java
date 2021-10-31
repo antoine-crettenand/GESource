@@ -9,36 +9,35 @@ import com.example.fountainfinder.db.sanitizer.DataSanitizer;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 
 
-public class FountainDataRepository {
+public final class FountainDataRepository {
 
     private final RemoteDataSource remoteDataSource;
     private final LocalDataSource localDataSource;
     private final DataSanitizer dataSanitizer;
 
-    private static final int FIVE_MINUTES_IN_MS = 300000;
+    private static final int ONE_MINUTE_IN_MS = 1 * 60 * 1000;
     private static long TIMECODE_OF_PREVIOUS_API_CALL;
 
-    public FountainDataRepository(LocalDataSource localDataSource, RemoteDataSource remoteDataSource, DataSanitizer dataSanitizer) {
+    FountainDataRepository(LocalDataSource localDataSource, RemoteDataSource remoteDataSource, DataSanitizer dataSanitizer) {
         this.localDataSource = localDataSource;
         this.remoteDataSource = remoteDataSource;
         this.dataSanitizer = dataSanitizer;
-    }
-
-    public LiveData<Boolean> insert(Fountain... fountain) {
-        return insert(Arrays.asList(fountain));
     }
 
     public LiveData<Boolean> insert(Collection<Fountain> fountains) {
         return localDataSource.update(fountains);
     }
 
+    public LiveData<Boolean> insert(FragmentActivity activity, Fountain fountain) {
+        return remoteDataSource.update(activity, fountain);
+    }
+
     public LiveData<Collection<Fountain>> getAll(FragmentActivity activity, LatLng ne, LatLng sw) {
         long currentTime = System.currentTimeMillis();
-        if (isInternetAvailable() && currentTime - TIMECODE_OF_PREVIOUS_API_CALL >= FIVE_MINUTES_IN_MS) {
+        if (isInternetAvailable() && currentTime - TIMECODE_OF_PREVIOUS_API_CALL >= ONE_MINUTE_IN_MS) {
             LiveData<Collection<Fountain>> remoteData = remoteDataSource.fetch(activity, ne, sw);
             TIMECODE_OF_PREVIOUS_API_CALL = currentTime;
 

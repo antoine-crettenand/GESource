@@ -29,6 +29,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (isServiceAvailable())
             linkButtonToMapsActivity();
+        else {
+            Toast.makeText(this, "It seems like you're not connected to Internet!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void linkButtonToMapsActivity() {

@@ -3,6 +3,7 @@ package com.example.fountainfinder;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.fountainfinder.db.FountainDataRepository;
 import com.example.fountainfinder.db.local.AppDatabase;
@@ -40,8 +41,11 @@ public class AddFountainActivity extends AppCompatActivity {
             float longitude = Float.parseFloat(longTV.getText().toString());
             Fountain ft = new Fountain(name, latitude, longitude);
 
-            fountainDataRepository.insert(ft).observe(this, value -> {
-                if (value) finish();
+            fountainDataRepository.insert(this, ft).observe(this, value -> {
+                if (value) {
+                    Toast.makeText(this, "Successfully added to the local database!", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
             });
         });
     }
