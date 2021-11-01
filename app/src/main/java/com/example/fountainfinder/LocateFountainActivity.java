@@ -162,10 +162,10 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
     public void onMapReady(GoogleMap googleMap) {
         this.map = googleMap;
 
-        map.moveCamera(CameraUpdateFactory.newLatLng(DEFAULT_LOCATION_GENEVA));
-
         UiSettings uiSettings = map.getUiSettings();
         uiSettings.setZoomControlsEnabled(true);
+
+        map.moveCamera(CameraUpdateFactory.newLatLng(DEFAULT_LOCATION_GENEVA));
 
         // Prompt the user for permission.
         getLocationPermission();

@@ -10,6 +10,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 
 
 public final class FountainDataRepository {
@@ -32,6 +33,7 @@ public final class FountainDataRepository {
     }
 
     public LiveData<Boolean> insert(FragmentActivity activity, Fountain fountain) {
+        localDataSource.update(Collections.singleton(fountain));
         return remoteDataSource.update(activity, fountain);
     }
 

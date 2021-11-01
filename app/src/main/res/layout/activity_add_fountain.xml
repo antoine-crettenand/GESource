@@ -8,6 +8,7 @@
 
     <EditText
         android:id="@+id/nameEditText"
+        android:hint="@string/fountain_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="text"
@@ -19,6 +20,7 @@
 
     <EditText
         android:id="@+id/latitudeEditText"
+        android:hint="@string/fountain_latitude"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -31,6 +33,7 @@
 
     <EditText
         android:id="@+id/longitudeEditText"
+        android:hint="@string/fountain_longitude"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -45,7 +48,7 @@
         android:id="@+id/btnToSubmitRequest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Submit"
+        android:text="@string/submit"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
