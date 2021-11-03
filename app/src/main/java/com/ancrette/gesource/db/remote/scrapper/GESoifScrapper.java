@@ -1,4 +1,4 @@
-package com.example.fountainfinder.db.remote.scrapper;
+package com.ancrette.gesource.db.remote.scrapper;
 
 import android.app.Activity;
 import android.widget.Toast;
@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.android.volley.*;
 import com.android.volley.toolbox.*;
-import com.example.fountainfinder.db.Fountain;
+import com.ancrette.gesource.db.Fountain;
 import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONArray;
 import org.json.JSONException;

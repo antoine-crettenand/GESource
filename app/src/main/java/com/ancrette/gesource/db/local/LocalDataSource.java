@@ -1,8 +1,8 @@
-package com.example.fountainfinder.db.local;
+package com.ancrette.gesource.db.local;
 
 import android.app.Activity;
 import androidx.lifecycle.LiveData;
-import com.example.fountainfinder.db.Fountain;
+import com.ancrette.gesource.db.Fountain;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Collection;

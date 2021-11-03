@@ -1,11 +1,11 @@
-package com.example.fountainfinder.db;
+package com.ancrette.gesource.db;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
-import com.example.fountainfinder.db.local.LocalDataSource;
-import com.example.fountainfinder.db.remote.scrapper.RemoteDataSource;
-import com.example.fountainfinder.db.sanitizer.DataSanitizer;
+import com.ancrette.gesource.db.local.LocalDataSource;
+import com.ancrette.gesource.db.remote.scrapper.RemoteDataSource;
+import com.ancrette.gesource.db.sanitizer.DataSanitizer;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;

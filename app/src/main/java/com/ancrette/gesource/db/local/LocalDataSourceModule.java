@@ -1,4 +1,4 @@
-package com.example.fountainfinder.db.local;
+package com.ancrette.gesource.db.local;
 
 import dagger.Binds;
 import dagger.Module;

@@ -1,4 +1,4 @@
-package com.example.fountainfinder.db;
+package com.ancrette.gesource.db;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -9,7 +9,6 @@ import androidx.room.PrimaryKey;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
-import java.util.Objects;
 import java.util.Random;
 
 /**

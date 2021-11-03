@@ -1,12 +1,9 @@
-package com.example.fountainfinder;
+package com.ancrette.gesource;
 
 import android.app.Dialog;
 import android.content.Intent;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,8 +12,6 @@ import androidx.lifecycle.OnLifecycleEvent;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import dagger.hilt.android.AndroidEntryPoint;
-
-import java.util.Random;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {

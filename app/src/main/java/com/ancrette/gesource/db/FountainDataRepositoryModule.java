@@ -1,9 +1,9 @@
-package com.example.fountainfinder.db;
+package com.ancrette.gesource.db;
 
-import com.example.fountainfinder.db.local.LocalDataSource;
-import com.example.fountainfinder.db.remote.scrapper.GESoifScrapper;
-import com.example.fountainfinder.db.remote.scrapper.RemoteDataSource;
-import com.example.fountainfinder.db.sanitizer.DataSanitizer;
+import com.ancrette.gesource.db.local.LocalDataSource;
+import com.ancrette.gesource.db.remote.scrapper.GESoifScrapper;
+import com.ancrette.gesource.db.remote.scrapper.RemoteDataSource;
+import com.ancrette.gesource.db.sanitizer.DataSanitizer;
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;

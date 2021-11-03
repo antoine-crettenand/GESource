@@ -1,10 +1,8 @@
-package com.example.fountainfinder.db.local;
+package com.ancrette.gesource.db.local;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.*;
-import androidx.work.ListenableWorker;
-import com.example.fountainfinder.db.Fountain;
-import com.google.common.util.concurrent.ListenableFuture;
+import com.ancrette.gesource.db.Fountain;
 
 import java.util.List;
 

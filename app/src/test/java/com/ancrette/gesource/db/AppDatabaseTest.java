@@ -1,7 +1,7 @@
-package com.example.fountainfinder.db;
+package com.ancrette.gesource.db;
 
-import com.example.fountainfinder.db.remote.scrapper.GESoifScrapper;
-import com.example.fountainfinder.db.sanitizer.DataSanitizer;
+import com.ancrette.gesource.db.remote.scrapper.GESoifScrapper;
+import com.ancrette.gesource.db.sanitizer.DataSanitizer;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package com.example.fountainfinder;
+package com.ancrette.gesource;
 
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
@@ -10,9 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
-import com.example.fountainfinder.db.FountainDataRepository;
-import com.example.fountainfinder.db.local.AppDatabase;
-import com.example.fountainfinder.db.Fountain;
+import com.ancrette.gesource.db.FountainDataRepository;
+import com.ancrette.gesource.db.Fountain;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.*;

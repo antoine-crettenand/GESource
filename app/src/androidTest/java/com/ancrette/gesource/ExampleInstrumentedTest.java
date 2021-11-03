@@ -1,4 +1,4 @@
-package com.example.fountainfinder;
+package com.ancrette.gesource;
 
 import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;

@@ -1,4 +1,4 @@
-package com.example.fountainfinder.db.sanitizer;
+package com.ancrette.gesource.db.sanitizer;
 
 import dagger.Module;
 import dagger.Provides;

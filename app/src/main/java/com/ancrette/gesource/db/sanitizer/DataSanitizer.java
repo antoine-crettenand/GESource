@@ -1,6 +1,6 @@
-package com.example.fountainfinder.db.sanitizer;
+package com.ancrette.gesource.db.sanitizer;
 
-import com.example.fountainfinder.db.Fountain;
+import com.ancrette.gesource.db.Fountain;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.*;

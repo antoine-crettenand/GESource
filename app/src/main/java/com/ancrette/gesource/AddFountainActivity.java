@@ -1,13 +1,12 @@
-package com.example.fountainfinder;
+package com.ancrette.gesource;
 
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.fountainfinder.db.FountainDataRepository;
-import com.example.fountainfinder.db.local.AppDatabase;
-import com.example.fountainfinder.db.Fountain;
+import com.ancrette.gesource.db.FountainDataRepository;
+import com.ancrette.gesource.db.Fountain;
 import dagger.hilt.android.AndroidEntryPoint;
 
 import javax.inject.Inject;

@@ -1,14 +1,12 @@
-package com.example.fountainfinder.db.local;
+package com.ancrette.gesource.db.local;
 
 import android.app.Activity;
-import android.content.Context;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.room.Database;
-import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import com.example.fountainfinder.db.Fountain;
+import com.ancrette.gesource.db.Fountain;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.*;

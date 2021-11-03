@@ -1,4 +1,4 @@
-package com.example.fountainfinder;
+package com.ancrette.gesource;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.example.fountainfinder.db.local;
+package com.ancrette.gesource.db.local;
 
 import android.content.Context;
 import androidx.room.Room;
