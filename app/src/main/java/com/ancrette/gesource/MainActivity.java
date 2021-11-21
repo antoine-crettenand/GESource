@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        linkButtonToAddFountainActivity();
         if (isServiceAvailable())
             linkButtonToMapsActivity();
         else {
@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     private void linkButtonToAddFountainActivity(){
         Button btn = findViewById(R.id.btnToAddActivity);
         btn.setOnClickListener(v -> {

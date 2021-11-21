@@ -67,11 +67,11 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
                     if (task.isSuccessful()) {
                         // Set the map's camera position to the current location of the device.
                         lastKnownLocation = task.getResult();
-                        if (lastKnownLocation != null) {
-                            map.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                    new LatLng(lastKnownLocation.getLatitude(),
-                                            lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-                        }
+            //            if (lastKnownLocation != null) {
+              //              map.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                //                    new LatLng(lastKnownLocation.getLatitude(),
+                  //                          lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+                    //    }
                     } else {
                         Log.d(TAG, "Current location is null. Using defaults.");
                         Log.e(TAG, "Exception: %s", task.getException());

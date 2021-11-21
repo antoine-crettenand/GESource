@@ -1,5 +1,7 @@
 package com.ancrette.gesource.db;
 
+import android.util.Log;
+import android.widget.Toast;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
@@ -39,10 +41,9 @@ public final class FountainDataRepository {
 
     public LiveData<Collection<Fountain>> getAll(FragmentActivity activity, LatLng ne, LatLng sw) {
         long currentTime = System.currentTimeMillis();
-        if (isInternetAvailable() && currentTime - TIMECODE_OF_PREVIOUS_API_CALL >= ONE_MINUTE_IN_MS) {
+        if (isInternetAvailable()) {
             LiveData<Collection<Fountain>> remoteData = remoteDataSource.fetch(activity, ne, sw);
             TIMECODE_OF_PREVIOUS_API_CALL = currentTime;
-
             // sanitize data
             LiveData<Collection<Fountain>> sanitizedRemoteData = Transformations.map(remoteData, dataSanitizer::sanitize);
 
@@ -50,6 +51,7 @@ public final class FountainDataRepository {
             sanitizedRemoteData.observe(activity, localDataSource::update);
             return sanitizedRemoteData;
         } else
+            Toast.makeText(activity, "It seems like you're not connected to Internet!", Toast.LENGTH_SHORT).show();
             return localDataSource.fetch(activity, ne, sw);
     }
 

@@ -38,7 +38,7 @@ public class DataSanitizer {
             if (x.contains(s))
                 return true;
         }
-        return true;
+        return false;
     }
 
     private boolean isSane(Fountain f) {
