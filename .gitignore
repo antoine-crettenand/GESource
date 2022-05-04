@@ -17,3 +17,25 @@ local.properties
 # local damin files
 visualize_db_sanitizer.py
 db_json.txt
+
+.graphqlconfig.yml
+
+app/src/main/assets/
+app/src/main/graphql/
+app/src/main/java/com/amplifyframework/
+
+#amplify-do-not-edit-begin
+amplify/
+build/
+dist/
+node_modules/
+aws-exports.js
+awsconfiguration.json
+amplifyconfiguration.json
+amplifyconfiguration.dart
+amplify-build-config.json
+amplify-gradle-config.json
+amplifytools.xcconfig
+.secret-*
+**.sample
+#amplify-do-not-edit-end

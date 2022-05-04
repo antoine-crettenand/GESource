@@ -10,12 +10,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
-import com.ancrette.gesource.db.FountainDataRepository;
 import com.ancrette.gesource.db.Fountain;
+import com.ancrette.gesource.db.FountainDataRepository;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.*;
-import com.google.android.gms.maps.model.*;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -35,7 +36,7 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
     private final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private GoogleMap map;
     private final String TAG = LocateFountainActivity.class.getSimpleName();
-    private Location lastKnownLocation;
+    private static Location lastKnownLocation;
     private FusedLocationProviderClient fusedLocationProviderClient;
 
     @Override
@@ -51,6 +52,12 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
         mapFragment.getMapAsync(this);
     }
 
+    public static Location getLocation() {
+        if (lastKnownLocation != null)
+            return lastKnownLocation;
+        else
+            return null;
+    }
 
     /**
      * Gets the current location of the device, and positions the map's camera.
@@ -67,11 +74,11 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
                     if (task.isSuccessful()) {
                         // Set the map's camera position to the current location of the device.
                         lastKnownLocation = task.getResult();
-            //            if (lastKnownLocation != null) {
-              //              map.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                //                    new LatLng(lastKnownLocation.getLatitude(),
-                  //                          lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-                    //    }
+                        //            if (lastKnownLocation != null) {
+                        //              map.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                        //                    new LatLng(lastKnownLocation.getLatitude(),
+                        //                          lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+                        //    }
                     } else {
                         Log.d(TAG, "Current location is null. Using defaults.");
                         Log.e(TAG, "Exception: %s", task.getException());
@@ -85,6 +92,7 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
             Log.e("Exception: %s", e.getMessage(), e);
         }
     }
+
 
     /**
      * Prompts the user for permission to use the device location.
@@ -183,7 +191,7 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
         map.setOnMarkerClickListener(clusterManager);
 
         // Retrieve all markers from the database
-        LiveData<Collection<Fountain>> allFountains = fountainDataRepository.getAll(this, latLngBounds.southwest, latLngBounds.northeast);
+        LiveData<Collection<Fountain>> allFountains = fountainDataRepository.scan(latLngBounds.southwest, latLngBounds.northeast, this);
 
         allFountains.observe(this, clusterManager::addItems);
     }

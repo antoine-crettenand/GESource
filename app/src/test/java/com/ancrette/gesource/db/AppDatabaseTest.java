@@ -17,13 +17,14 @@ public class AppDatabaseTest {
 
     Collection<Fountain> fountains;
     DataSanitizer dataSanitizer;
+    GESoifScrapper geSoifScrapper;
 
     @Before
     public void initMockData() throws FileNotFoundException, JSONException {
         File file = new File(System.getProperty("user.dir") + "/../db_json.txt");
         Scanner scanner = new Scanner(file);
         String response = scanner.nextLine();
-        this.fountains = new GESoifScrapper().convertJSONToFountainCollection(response);
+        this.fountains = geSoifScrapper.castJSONStringAsCollectionOfFountain(response);
         this.dataSanitizer = new DataSanitizer();
     }
 

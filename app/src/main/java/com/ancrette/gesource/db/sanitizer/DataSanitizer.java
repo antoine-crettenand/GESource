@@ -33,7 +33,7 @@ public class DataSanitizer {
         return R * c * UNIT_KM_TO_M;
     }
 
-    private static boolean contains(String x, String[] y) {
+    private static boolean contains(String x, String... y) {
         for (String s : y) {
             if (x.contains(s))
                 return true;
@@ -48,6 +48,7 @@ public class DataSanitizer {
     // Naive O(n^2) algorithm
     // Reordering happens
     public Collection<Fountain> sanitize(Collection<Fountain> source) {
+
         Collection<Fountain> individuallySanitizedSource = new ArrayList<>();
 
         int numberOfUnsaneData = 0;

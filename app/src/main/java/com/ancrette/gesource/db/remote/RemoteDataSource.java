@@ -1,4 +1,4 @@
-package com.ancrette.gesource.db.remote.scrapper;
+package com.ancrette.gesource.db.remote;
 
 import android.app.Activity;
 import androidx.lifecycle.LiveData;
@@ -10,9 +10,9 @@ import java.util.Collection;
 
 public interface RemoteDataSource {
 
-    LiveData<Collection<Fountain>> fetch(Activity activity, LatLng ne, LatLng sw);
+    LiveData<Collection<Fountain>> scanWithinBorders(LatLng ne, LatLng sw, Activity activity);
 
-    default LiveData<Boolean> update(Activity activity, Fountain fountains){
+    default LiveData<Boolean> insert(Fountain fountain, Activity activity) {
         return new MutableLiveData<>(false);
     }
 }

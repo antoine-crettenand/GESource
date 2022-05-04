@@ -29,7 +29,7 @@ public final class Fountain implements ClusterItem {
     }
 
     @Ignore
-    public Fountain(String id, String title, double latitude, double longitude, String time, String address, String active, int nbottles, String img, String source, String reported) {
+    public Fountain(String id, String title, double latitude, double longitude, String time, String address, boolean active, int nbottles, String img, String source, String reported) {
         this.id = new Random().nextInt();
         this.idGE = id;
         this.title = title;
@@ -65,7 +65,7 @@ public final class Fountain implements ClusterItem {
     public String address;
 
     @ColumnInfo(name = "active")
-    public String active;
+    public boolean active;
 
     @ColumnInfo(name = "nbottles")
     public int nbottles;
@@ -94,7 +94,7 @@ public final class Fountain implements ClusterItem {
     @Nullable
     @Override
     public String getSnippet() {
-        return address;
+        return getPosition() + "\n" + address;
     }
 
     @Override
@@ -125,12 +125,12 @@ public final class Fountain implements ClusterItem {
         if (id != fountain.id) return false;
         if (Double.compare(fountain.latitude, latitude) != 0) return false;
         if (Double.compare(fountain.longitude, longitude) != 0) return false;
+        if (active != fountain.active) return false;
         if (nbottles != fountain.nbottles) return false;
         if (idGE != null ? !idGE.equals(fountain.idGE) : fountain.idGE != null) return false;
         if (title != null ? !title.equals(fountain.title) : fountain.title != null) return false;
         if (time != null ? !time.equals(fountain.time) : fountain.time != null) return false;
         if (address != null ? !address.equals(fountain.address) : fountain.address != null) return false;
-        if (active != null ? !active.equals(fountain.active) : fountain.active != null) return false;
         if (img != null ? !img.equals(fountain.img) : fountain.img != null) return false;
         if (source != null ? !source.equals(fountain.source) : fountain.source != null) return false;
         return reported != null ? reported.equals(fountain.reported) : fountain.reported == null;
@@ -149,7 +149,7 @@ public final class Fountain implements ClusterItem {
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (time != null ? time.hashCode() : 0);
         result = 31 * result + (address != null ? address.hashCode() : 0);
-        result = 31 * result + (active != null ? active.hashCode() : 0);
+        result = 31 * result + (active ? 1 : 0);
         result = 31 * result + nbottles;
         result = 31 * result + (img != null ? img.hashCode() : 0);
         result = 31 * result + (source != null ? source.hashCode() : 0);

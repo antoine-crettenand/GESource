@@ -10,7 +10,7 @@ import java.util.List;
 public interface FountainDao {
 
     @Query("SELECT * FROM fountain")
-    LiveData<List<Fountain>> getAll();
+    LiveData<List<Fountain>> scan();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Fountain fountain);
