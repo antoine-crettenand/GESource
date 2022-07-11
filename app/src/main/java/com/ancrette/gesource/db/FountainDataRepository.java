@@ -1,71 +1,102 @@
 package com.ancrette.gesource.db;
 
-import android.widget.Toast;
+import android.util.Log;
+import androidx.annotation.NonNull;
+import androidx.arch.core.util.Function;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import com.ancrette.gesource.SettingsParameters;
-import com.ancrette.gesource.db.local.LocalDataSource;
+import com.ancrette.gesource.db.local.LocalDatabase;
 import com.ancrette.gesource.db.remote.RemoteDataSource;
 import com.ancrette.gesource.db.sanitizer.DataSanitizer;
 import com.google.android.gms.maps.model.LatLng;
+import software.amazon.awssdk.annotations.Mutable;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Manage local and remote data storage. Ensures synchronicity.
  */
 public final class FountainDataRepository {
 
+    public enum RequestErrorStatus {
+        NO_ERROR, REMOTE_DATA_SOURCE_FAILED, LOCAL_DATA_SOURCE_FAILED, REMOTE_AND_LOCAL_SOURCE_FAILED;
+
+        public static RequestErrorStatus valueOf(boolean local, boolean remote) {
+            if (local)
+                if (remote)
+                    return NO_ERROR;
+                else
+                    return REMOTE_DATA_SOURCE_FAILED;
+            else if (remote)
+                return LOCAL_DATA_SOURCE_FAILED;
+            else
+                return REMOTE_AND_LOCAL_SOURCE_FAILED;
+        }
+
+        public boolean haveRemoteSourceFailed() {
+            return this == REMOTE_AND_LOCAL_SOURCE_FAILED || this == REMOTE_DATA_SOURCE_FAILED;
+        }
+
+        public boolean haveLocalSourceFailed() {
+            return this == LOCAL_DATA_SOURCE_FAILED || this == REMOTE_AND_LOCAL_SOURCE_FAILED;
+        }
+
+        public boolean isSuccessfull() {
+            return this == NO_ERROR;
+        }
+    }
+
+    private final String TAG = FountainDataRepository.class.getSimpleName();
     private final RemoteDataSource remoteDataSource;
-    private final LocalDataSource localDataSource;
+    private final LocalDatabase localDatabase;
     private final DataSanitizer dataSanitizer;
-
     private static final int ONE_MINUTE_IN_MS = 1 * 60 * 1000;
-    private static long TIMECODE_OF_PREVIOUS_API_CALL;
+    private static long MS_ELAPSED_FROM_PREVIOUS_API_CALL = 0L;
 
-    FountainDataRepository(LocalDataSource localDataSource, RemoteDataSource remoteDataSource, DataSanitizer dataSanitizer) {
-        this.localDataSource = localDataSource;
+
+    FountainDataRepository(LocalDatabase localDatabase, RemoteDataSource remoteDataSource, DataSanitizer dataSanitizer) {
+        this.localDatabase = localDatabase;
         this.remoteDataSource = remoteDataSource;
         this.dataSanitizer = dataSanitizer;
     }
 
-    public LiveData<Boolean> insert(Fountain fountain, FragmentActivity activity) {
-        localDataSource.insert(fountain, activity);
-        return remoteDataSource.insert(fountain, activity);
+    public LiveData<RequestErrorStatus> insert(Fountain f) {
+        return Transformations.switchMap(localDatabase.insert(f),
+                localSuccess -> {
+                    if (localSuccess)
+                        return Transformations.map(remoteDataSource.insert(f),
+                                remoteSuccess -> RequestErrorStatus.valueOf(true, remoteSuccess));
+                    else
+                        return new MutableLiveData<>(RequestErrorStatus.valueOf(false, false));
+                }
+        );
     }
 
-    public LiveData<Collection<Fountain>> scan(LatLng ne, LatLng sw, FragmentActivity activity) {
+    public LiveData<Collection<Fountain>> scan(LatLng ne, LatLng sw) {
         long currentTime = System.currentTimeMillis();
-        if (isInternetAvailable()) {
-            LiveData<Collection<Fountain>> remoteData = remoteDataSource.scanWithinBorders(ne, sw, activity);
-            TIMECODE_OF_PREVIOUS_API_CALL = currentTime;
+        if (fiveMinutesHasElapsedFromPreviousAPICall(currentTime)) {
+            Log.d(TAG, "More than five minutes have elapsed. Fetching from remote datasource...");
+            LiveData<Collection<Fountain>> remoteData = remoteDataSource.scanWithinBorders(ne, sw);
+            MS_ELAPSED_FROM_PREVIOUS_API_CALL = currentTime;
+
             // sanitize data
             LiveData<Collection<Fountain>> sanitizedRemoteData = Transformations.map(remoteData, dataSanitizer::sanitize);
 
             // priority over online data
             if (SettingsParameters.SYNC_LOCAL_WITH_UPSTREAM_DB)
-                sanitizedRemoteData.observe(activity, localDataSource::insertAll);
-
+                Transformations.map(sanitizedRemoteData, localDatabase::insertAll);
+//                sanitizedRemoteData.observe(activity, localDatabase::insertAll);
             return sanitizedRemoteData;
         } else
-            Toast.makeText(activity, "It seems like you're not connected to Internet!", Toast.LENGTH_SHORT).show();
-        return localDataSource.scanWithinBorders(ne, sw, activity);
+            return localDatabase.scanWithinBorders(ne, sw);
     }
 
-    //TODO find a better way to do this ?
-    private boolean isInternetAvailable() {
-        String command = "ping -c 1 google.com";
-        try {
-            return Runtime.getRuntime().exec(command).waitFor() == 0;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return false;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+    private boolean fiveMinutesHasElapsedFromPreviousAPICall(long currentTime) {
+        return currentTime - MS_ELAPSED_FROM_PREVIOUS_API_CALL > 5 * ONE_MINUTE_IN_MS;
     }
 }

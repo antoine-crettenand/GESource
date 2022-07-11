@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
+import java.util.Locale;
 import java.util.Random;
 
 /**
@@ -21,11 +22,12 @@ public final class Fountain implements ClusterItem {
     }
 
     @Ignore
-    public Fountain(String name, double latitude, double longitude) {
+    public Fountain(String name, double latitude, double longitude, boolean active) {
         this.id = new Random().nextInt();
         this.title = name;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.active = active;
     }
 
     @Ignore
@@ -64,6 +66,7 @@ public final class Fountain implements ClusterItem {
     @ColumnInfo(name = "address")
     public String address;
 
+    // Set to true if Fountain is added to the shared database. Default to false at creation.
     @ColumnInfo(name = "active")
     public boolean active;
 
@@ -88,31 +91,47 @@ public final class Fountain implements ClusterItem {
     @Nullable
     @Override
     public String getTitle() {
-        return title;
+        // quick fix until finding how to update aws fountains...
+        if (title.contains("undefined"))
+            return "Fontaine sans nom";
+        else
+            return title;
     }
 
     @Nullable
     @Override
     public String getSnippet() {
-        return getPosition() + "\n" + address;
+        if (address.isEmpty())
+            return String.format(Locale.GERMAN, "(%.2f, %.2f)", getPosition().latitude, getPosition().longitude);
+        else
+            return address;
     }
 
     @Override
     public String toString() {
-        return "Fountain{" +
-                "id=" + id +
-                ", idGE='" + idGE + '\'' +
-                ", title='" + title + '\'' +
-                ", latitude=" + latitude +
-                ", longitude=" + longitude +
-                ", time='" + time + '\'' +
-                ", address='" + address + '\'' +
-                ", active='" + active + '\'' +
-                ", nbottles=" + nbottles +
-                ", img='" + img + '\'' +
-                ", source='" + source + '\'' +
-                ", reported='" + reported + '\'' +
-                '}';
+        if (address != null)
+            return "Fountain{" +
+                    "id=" + id +
+                    ", idGE='" + idGE + '\'' +
+                    ", title='" + title + '\'' +
+                    ", latitude=" + latitude +
+                    ", longitude=" + longitude +
+                    ", time='" + time + '\'' +
+                    ", address='" + address + '\'' +
+                    ", active='" + active + '\'' +
+                    ", nbottles=" + nbottles +
+                    ", img='" + img + '\'' +
+                    ", source='" + source + '\'' +
+                    ", reported='" + reported + '\'' +
+                    '}';
+        else
+            return "Fountain{" +
+                    "id=" + id +
+                    ", idGE='" + idGE + '\'' +
+                    ", title='" + title + '\'' +
+                    ", latitude=" + latitude + '\'' +
+                    ", longitude=" + longitude + '\'' +
+                    '}';
     }
 
     @Override

@@ -10,9 +10,7 @@ import java.util.Collection;
 
 public interface RemoteDataSource {
 
-    LiveData<Collection<Fountain>> scanWithinBorders(LatLng ne, LatLng sw, Activity activity);
+    LiveData<Collection<Fountain>> scanWithinBorders(LatLng ne, LatLng sw);
 
-    default LiveData<Boolean> insert(Fountain fountain, Activity activity) {
-        return new MutableLiveData<>(false);
-    }
+    LiveData<Boolean> insert(Fountain fountain);
 }

@@ -1,7 +1,7 @@
 package com.ancrette.gesource.db.remote.scrapper;
 
-import android.app.Activity;
-import android.widget.Toast;
+import android.content.Context;
+import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.ancrette.gesource.db.remote.RemoteDataSource;
@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 public class GESoifScrapper implements RemoteDataSource {
@@ -20,18 +21,20 @@ public class GESoifScrapper implements RemoteDataSource {
     private static final String POST_API_STRING_FORMAT = "https://www.ge-soif.ch/api/fountain/add_fountain.php";
     private static final String TAG = GESoifScrapper.class.getSimpleName();
 
+    private static RequestQueue queue;
+
+    public GESoifScrapper(@Nonnull Context context){
+        queue = Volley.newRequestQueue(context);
+    }
+
     @Override
-    public LiveData<Collection<Fountain>> scanWithinBorders(LatLng ne, LatLng sw, Activity activity) {
-        return scanWithinBordersHelper(ne.latitude, ne.longitude, sw.latitude, sw.longitude, activity);
+    public LiveData<Collection<Fountain>> scanWithinBorders(LatLng ne, LatLng sw) {
+        return scanWithinBorders(ne.latitude, ne.longitude, sw.latitude, sw.longitude);
     } 
 
     @Override
-    public LiveData<Boolean> insert(Fountain fountain, Activity activity) {
+    synchronized public LiveData<Boolean> insert(Fountain fountain) {
         MutableLiveData<Boolean> mutableLiveData = new MutableLiveData<>(false);
-
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(activity);
-        queue.start();
 
         JSONObject postData = new JSONObject();
 
@@ -53,30 +56,27 @@ public class GESoifScrapper implements RemoteDataSource {
 
         JsonObjectRequest fountainRequest = new JsonObjectRequest(Request.Method.POST, POST_API_STRING_FORMAT, postData, response -> {
             mutableLiveData.postValue(true);
-            queue.stop();
+       //     queue.stop();
         }, error -> mutableLiveData.postValue(false));
         queue.add(fountainRequest);
         return mutableLiveData;
     }
 
-    private LiveData<Collection<Fountain>> scanWithinBordersHelper(double swLat, double swLong, double neLat, double neLong, Activity activity) {
+    synchronized private LiveData<Collection<Fountain>> scanWithinBorders(double swLat, double swLong, double neLat, double neLong) {
         MutableLiveData<Collection<Fountain>> mutableLiveData = new MutableLiveData<>();
         String path = String.format(Locale.FRENCH, GET_API_STRING_FORMAT, swLat, swLong, neLat, neLong);
-
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(activity);
-        queue.start();
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, path, response -> {
             try {
                 mutableLiveData.setValue(castJSONStringAsCollectionOfFountain(response));
-                queue.stop();
+       //         queue.stop();
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.d(TAG, e.getMessage());
             }
         }, error -> {
-            Toast.makeText(activity.getApplicationContext(), "An error occurred retrieving data. Try again later!", Toast.LENGTH_SHORT).show();
-            queue.stop();
+       //     Toast.makeText(activity.getApplicationContext(), "An error occurred retrieving data. Try again later!", Toast.LENGTH_SHORT).show();
+      //      queue.stop();
+            Log.d(TAG, "Query failed.");
         });
         queue.add(stringRequest);
 

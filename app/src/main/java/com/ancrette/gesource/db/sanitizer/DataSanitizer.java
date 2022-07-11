@@ -41,7 +41,7 @@ public class DataSanitizer {
         return false;
     }
 
-    private boolean isSane(Fountain f) {
+    public static boolean isSane(Fountain f) {
         return !contains(f.address, ADDRESS_BLOCKLIST) && !contains(f.title, TITLE_BLOCKLIST);
     }
 

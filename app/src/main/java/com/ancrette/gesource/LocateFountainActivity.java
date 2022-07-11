@@ -5,11 +5,13 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import com.ancrette.gesource.db.Fountain;
 import com.ancrette.gesource.db.FountainDataRepository;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -38,6 +40,7 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
     private final String TAG = LocateFountainActivity.class.getSimpleName();
     private static Location lastKnownLocation;
     private FusedLocationProviderClient fusedLocationProviderClient;
+    private ClusterManager<Fountain> clusterManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,28 +48,61 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
         setContentView(R.layout.activity_locate_fountain);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
 
-    public static Location getLocation() {
-        if (lastKnownLocation != null)
-            return lastKnownLocation;
-        else
-            return null;
+    /**
+     * Manipulates the map once available.
+     * This callback is triggered when the map is ready to be used.
+     * This is where we can add markers or lines, add listeners or move the camera. In this case,
+     * we just add a marker near Sydney, Australia.
+     * <p>
+     * If Google Play services is not installed on the device, the user will be prompted to install
+     * it inside the SupportMapFragment. This method will only be triggered once the user has
+     * installed Google Play services and returned to the app.
+     */
+    @SuppressLint("PotentialBehaviorOverride")
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        this.map = googleMap;
+        this.clusterManager = new ClusterManager<>(this, map);
+        map.setOnCameraIdleListener(clusterManager);
+        map.setOnMarkerClickListener(clusterManager);
+
+        UiSettings uiSettings = map.getUiSettings();
+        uiSettings.setZoomControlsEnabled(true);
+
+        // Prompt the user for permission.
+        getLocationPermission();
+
+        // Turn on the My Location layer and the related control on the map.
+        updateLocationUI();
+
+        LatLngBounds latLngBounds = map.getProjection().getVisibleRegion().latLngBounds;
+
+        // Query the repository for all surrounding fountains
+        LiveData<Collection<Fountain>> allFountains = fountainDataRepository.scan(latLngBounds.southwest, latLngBounds.northeast);
+
+        allFountains.observe(this, collection -> {
+            if (collection.isEmpty())
+                Toast.makeText(this, "An error occurred loading your fountains!", Toast.LENGTH_LONG).show();
+            else
+                clusterManager.addItems(collection);
+        });
     }
 
     /**
      * Gets the current location of the device, and positions the map's camera.
      */
-    private void getDeviceLocation() {
+    private LiveData<Boolean> getDeviceLocation() {
         /*
          * Get the best and most recent location of the device, which may be null in rare
          * cases when a location is not available.
          */
+        MutableLiveData<Boolean> success = new MutableLiveData<>();
         try {
             if (locationPermissionGranted) {
                 Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
@@ -79,18 +115,21 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
                         //                    new LatLng(lastKnownLocation.getLatitude(),
                         //                          lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
                         //    }
+                        success.postValue(true);
                     } else {
                         Log.d(TAG, "Current location is null. Using defaults.");
                         Log.e(TAG, "Exception: %s", task.getException());
                         map.moveCamera(CameraUpdateFactory
                                 .newLatLngZoom(DEFAULT_LOCATION_GENEVA, DEFAULT_ZOOM));
                         map.getUiSettings().setMyLocationButtonEnabled(false);
+                        success.postValue(false);
                     }
                 });
             }
         } catch (SecurityException e) {
-            Log.e("Exception: %s", e.getMessage(), e);
+            Log.e(TAG, e.getMessage(), e);
         }
+        return success;
     }
 
 
@@ -143,6 +182,13 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
             if (locationPermissionGranted) {
                 map.setMyLocationEnabled(true);
                 map.getUiSettings().setMyLocationButtonEnabled(true);
+                // Get the current location of the device and set the position of the map.
+                getDeviceLocation().observe(this, success -> {
+                    if (success)
+                        map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude())));
+                    else
+                        map.moveCamera(CameraUpdateFactory.newLatLng(DEFAULT_LOCATION_GENEVA));
+                });
             } else {
                 map.setMyLocationEnabled(false);
                 map.getUiSettings().setMyLocationButtonEnabled(false);
@@ -154,45 +200,4 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
         }
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * <p>
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
-    @SuppressLint("PotentialBehaviorOverride")
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        this.map = googleMap;
-
-        UiSettings uiSettings = map.getUiSettings();
-        uiSettings.setZoomControlsEnabled(true);
-
-        map.moveCamera(CameraUpdateFactory.newLatLng(DEFAULT_LOCATION_GENEVA));
-
-        // Prompt the user for permission.
-        getLocationPermission();
-
-        // Turn on the My Location layer and the related control on the map.
-        updateLocationUI();
-
-        // Get the current location of the device and set the position of the map.
-        getDeviceLocation();
-
-        // Retrieve the surrounding fountains based on visible region on map.
-        LatLngBounds latLngBounds = map.getProjection().getVisibleRegion().latLngBounds;
-
-        ClusterManager<Fountain> clusterManager = new ClusterManager<>(this, map);
-        map.setOnCameraIdleListener(clusterManager);
-        map.setOnMarkerClickListener(clusterManager);
-
-        // Retrieve all markers from the database
-        LiveData<Collection<Fountain>> allFountains = fountainDataRepository.scan(latLngBounds.southwest, latLngBounds.northeast, this);
-
-        allFountains.observe(this, clusterManager::addItems);
-    }
 }

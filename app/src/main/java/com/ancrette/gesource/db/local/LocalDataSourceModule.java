@@ -10,5 +10,5 @@ import dagger.hilt.components.SingletonComponent;
 public abstract class LocalDataSourceModule {
 
     @Binds
-    public abstract LocalDataSource bindLocalDataSource(AppDatabase appDatabase);
+    public abstract LocalDatabase bindLocalDataSource(AppDatabase appDatabase);
 }

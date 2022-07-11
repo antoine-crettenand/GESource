@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">GESource</string>
     <string name="find_the_nearest_fountain">Find the nearest fountain!</string>
-    <string name="add_a_new_fountain">Submit a new fountain!</string>
+    <string name="add_a_new_fountain">Save a fountain!</string>
     <string name="fountain_name">Fountain Name</string>
     <string name="fountain_latitude">Fountain latitude°</string>
     <string name="fountain_longitude">Fountain Longitude°</string>

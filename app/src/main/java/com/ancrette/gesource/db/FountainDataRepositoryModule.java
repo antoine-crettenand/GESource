@@ -1,7 +1,7 @@
 package com.ancrette.gesource.db;
 
 import android.content.Context;
-import com.ancrette.gesource.db.local.LocalDataSource;
+import com.ancrette.gesource.db.local.LocalDatabase;
 import com.ancrette.gesource.db.remote.RemoteDataSource;
 import com.ancrette.gesource.db.remote.aws.AWSRemoteInterface;
 import com.ancrette.gesource.db.remote.scrapper.GESoifScrapper;
@@ -21,12 +21,12 @@ public class FountainDataRepositoryModule {
     @Provides
     @Singleton
     public RemoteDataSource providesRemoteDataSource(@ApplicationContext Context context) {
-        return new AWSRemoteInterface(new GESoifScrapper());
+        return new AWSRemoteInterface(new GESoifScrapper(context));
     }
 
     @Provides
     @Singleton
-    public FountainDataRepository providesFountainDataRepository(LocalDataSource localDataSource, RemoteDataSource remoteDataSource, DataSanitizer dataSanitizer) {
-        return new FountainDataRepository(localDataSource, remoteDataSource, dataSanitizer);
+    public FountainDataRepository providesFountainDataRepository(LocalDatabase localDatabase, RemoteDataSource remoteDataSource, DataSanitizer dataSanitizer) {
+        return new FountainDataRepository(localDatabase, remoteDataSource, dataSanitizer);
     }
 }

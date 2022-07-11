@@ -24,11 +24,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         linkButtonToAddFountainActivity();
+
         if (isServiceAvailable())
             linkButtonToMapsActivity();
-        else {
+        else
             Toast.makeText(this, "It seems like you're not connected to Internet!", Toast.LENGTH_SHORT).show();
-        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isServiceAvailable())
+            linkButtonToMapsActivity();
     }
 
     private void linkButtonToMapsActivity() {
@@ -39,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void linkButtonToAddFountainActivity(){
+    private void linkButtonToAddFountainActivity() {
         Button btn = findViewById(R.id.btnToAddActivity);
         btn.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddFountainActivity.class);
