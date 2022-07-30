@@ -1,7 +1,5 @@
 package com.ancrette.gesource;
 
-import java.util.Set;
-
 /**
  * General parameters of application. Configurable in the settings of the application
  */

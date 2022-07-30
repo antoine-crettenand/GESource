@@ -23,12 +23,12 @@ public class AWSRemoteInterface extends RemoteDataSourceWithBackup {
         super(backupDataSource);
     }
 
-
     @Override
     public LiveData<Collection<Fountain>> scanWithinBorders(LatLng ne, LatLng sw) {
         MutableLiveData<Collection<Fountain>> fountains = new MutableLiveData<>();
         Amplify.API.query(ModelQuery.list(AWSFountain.class, AWSFountain.LATITUDE.between(ne.latitude, sw.latitude).and(AWSFountain.LONGITUDE.between(ne.longitude, sw.longitude).and(AWSFountain.ACTIVE.eq(true)))), response -> {
-            Log.d(TAG, response.toString());
+            Log.d(TAG, String.format(Locale.GERMAN, "Borders | latitude [%f, %f] | longitude [%f, %f]", ne.latitude, sw.latitude, ne.longitude, sw.longitude));
+            Log.d(TAG, response.getData().getItems().toString());
             fountains.postValue(Collections.unmodifiableCollection(AWSFountainsToFountains(response.getData().getItems())));
         }, error -> {
             Log.d(TAG, "Query failure. Trying with backup remote data source", error);

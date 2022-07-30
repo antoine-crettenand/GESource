@@ -5,13 +5,18 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.ancrette.gesource.db.Fountain;
 import com.ancrette.gesource.db.FountainDataRepository;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -24,7 +29,7 @@ import com.google.maps.android.clustering.ClusterManager;
 import dagger.hilt.android.AndroidEntryPoint;
 
 import javax.inject.Inject;
-import java.util.Collection;
+import java.util.Objects;
 
 @AndroidEntryPoint
 public class LocateFountainActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -48,11 +53,15 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
         setContentView(R.layout.activity_locate_fountain);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
+        setSupportActionBar(findViewById(R.id.my_toolbar));
+        setUpActionBar();
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
+
 
     /**
      * Manipulates the map once available.
@@ -78,20 +87,83 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
         // Prompt the user for permission.
         getLocationPermission();
 
-        // Turn on the My Location layer and the related control on the map.
+        // Turn on the Location layer and the related control on the map.
         updateLocationUI();
 
-        LatLngBounds latLngBounds = map.getProjection().getVisibleRegion().latLngBounds;
+        // scan for all fountains
+        populateMapWithFountains(new LatLngBounds(new LatLng(-90, -180), new LatLng(90,179)));
+    }
 
+    public void populateMapWithFountains(LatLngBounds latLngBounds) {
         // Query the repository for all surrounding fountains
-        LiveData<Collection<Fountain>> allFountains = fountainDataRepository.scan(latLngBounds.southwest, latLngBounds.northeast);
-
-        allFountains.observe(this, collection -> {
+        fountainDataRepository.scan(latLngBounds.southwest, latLngBounds.northeast).observe(this, collection -> {
             if (collection.isEmpty())
                 Toast.makeText(this, "An error occurred loading your fountains!", Toast.LENGTH_LONG).show();
             else
                 clusterManager.addItems(collection);
         });
+    }
+
+    public void setUpActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+
+        Objects.requireNonNull(actionBar);
+
+        // providing title for the ActionBar
+        actionBar.setTitle("GESource");
+
+        // providing subtitle for the ActionBar
+        //actionBar.setSubtitle("   Design a custom Action Bar");
+
+        // adding icon in the ActionBar.
+     //   actionBar.setIcon(R.mipmap.app_icon_foreground);
+        //   actionBar.setLogo(R.mipmap.app_icon_foreground);
+
+        // methods to display the icon in the ActionBar
+      //  actionBar.setDisplayUseLogoEnabled(true);
+     //   actionBar.setDisplayShowHomeEnabled(true);
+    }
+
+    // method to inflate the options menu when
+    // the user opens the menu for the first time
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    // methods to control the operations that will
+    // happen when user clicks on the action buttons
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.search) {
+            new MaterialDialog.Builder(this)
+                    .title("Suggest a (not-listed) fountain")
+                    .content("It seems that you found an unregistered fountain! Make sure you have provided a name & stand next to it before submitting.")
+                    .input("Fountain's name", "", false, (dialog, input) -> {
+                        EditText inputEditText = dialog.getInputEditText();
+                        if (inputEditText != null) {
+                            String name = inputEditText.getText().toString();
+                            double latitude = lastKnownLocation.getLatitude();
+                            double longitude = lastKnownLocation.getLongitude();
+                            Fountain ft = new Fountain(name, latitude, longitude, false);
+                            fountainDataRepository.insert(ft).observe(this, errorStatus -> {
+                                if (errorStatus.isSuccessful()) {
+                                    Toast.makeText(this, "Thank you for your help! Our team will now review it!", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    if (errorStatus.haveRemoteSourceFailed())
+                                        Toast.makeText(this, "A problem occurred while saving your fountain remotely! Try again!", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    })
+                    .positiveText("Submit")
+                    .negativeText("Cancel")
+                    .show();
+        } else if (item.getItemId() == R.id.refresh) {
+            populateMapWithFountains(map.getProjection().getVisibleRegion().latLngBounds);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -110,11 +182,11 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
                     if (task.isSuccessful()) {
                         // Set the map's camera position to the current location of the device.
                         lastKnownLocation = task.getResult();
-                        //            if (lastKnownLocation != null) {
-                        //              map.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                        //                    new LatLng(lastKnownLocation.getLatitude(),
-                        //                          lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-                        //    }
+                        if (lastKnownLocation != null) {
+                            map.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                    new LatLng(lastKnownLocation.getLatitude(),
+                                            lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+                        }
                         success.postValue(true);
                     } else {
                         Log.d(TAG, "Current location is null. Using defaults.");

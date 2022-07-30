@@ -34,7 +34,7 @@ public class GESoifScrapper implements RemoteDataSource {
 
     @Override
     synchronized public LiveData<Boolean> insert(Fountain fountain) {
-        MutableLiveData<Boolean> mutableLiveData = new MutableLiveData<>(false);
+        MutableLiveData<Boolean> mutableLiveData = new MutableLiveData<>();
 
         JSONObject postData = new JSONObject();
 

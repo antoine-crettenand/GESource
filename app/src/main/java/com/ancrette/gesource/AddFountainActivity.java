@@ -15,10 +15,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.ancrette.gesource.db.Fountain;
 import com.ancrette.gesource.db.FountainDataRepository;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.tasks.Task;
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -131,7 +129,7 @@ public class AddFountainActivity extends AppCompatActivity {
                     Fountain ft = new Fountain(name, latitude, longitude, false);
 
                     fountainDataRepository.insert(ft).observe(this, value -> {
-                        if (value.isSuccessfull()) {
+                        if (value.isSuccessful()) {
                             Toast.makeText(this, "Successfully saved your fountain!", Toast.LENGTH_SHORT).show();
                             //            finish();
                         } else {

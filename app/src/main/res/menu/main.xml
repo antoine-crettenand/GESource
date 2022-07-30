@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- action button to refresh -->
+    <item
+        android:title="refresh"
+        android:id="@+id/refresh"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"
+        android:icon="@mipmap/refresh_fountain_icon_foreground"/>
+
+    <!-- action button to add -->
+    <item
+        android:title="search"
+        android:id="@+id/search"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"
+        android:icon="@mipmap/add_fountain_icon_foreground"/>
+</menu>

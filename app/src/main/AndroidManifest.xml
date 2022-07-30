@@ -16,6 +16,7 @@
         android:theme="@style/Theme.FountainFinder"
         android:fullBackupContent="@xml/backup_descriptor"
         android:name="com.ancrette.gesource.Application">
+
         <activity android:name="com.ancrette.gesource.AddFountainActivity" />
 
         <meta-data
@@ -25,13 +26,13 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB4lI62k6bDvHiyxJyvux9OzADkqlwlczk" />
 
-        <activity android:name="com.ancrette.gesource.LocateFountainActivity" />
-        <activity android:name="com.ancrette.gesource.MainActivity">
+        <activity android:name="com.ancrette.gesource.LocateFountainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name="com.ancrette.gesource.MainActivity">
         </activity>
     </application>
 

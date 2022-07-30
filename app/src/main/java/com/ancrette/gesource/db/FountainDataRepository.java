@@ -1,11 +1,7 @@
 package com.ancrette.gesource.db;
 
 import android.util.Log;
-import androidx.annotation.NonNull;
-import androidx.arch.core.util.Function;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import com.ancrette.gesource.SettingsParameters;
@@ -13,9 +9,7 @@ import com.ancrette.gesource.db.local.LocalDatabase;
 import com.ancrette.gesource.db.remote.RemoteDataSource;
 import com.ancrette.gesource.db.sanitizer.DataSanitizer;
 import com.google.android.gms.maps.model.LatLng;
-import software.amazon.awssdk.annotations.Mutable;
 
-import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -26,16 +20,18 @@ public final class FountainDataRepository {
     public enum RequestErrorStatus {
         NO_ERROR, REMOTE_DATA_SOURCE_FAILED, LOCAL_DATA_SOURCE_FAILED, REMOTE_AND_LOCAL_SOURCE_FAILED;
 
+
         public static RequestErrorStatus valueOf(boolean local, boolean remote) {
             if (local)
                 if (remote)
                     return NO_ERROR;
                 else
                     return REMOTE_DATA_SOURCE_FAILED;
-            else if (remote)
-                return LOCAL_DATA_SOURCE_FAILED;
             else
-                return REMOTE_AND_LOCAL_SOURCE_FAILED;
+                if (remote)
+                    return LOCAL_DATA_SOURCE_FAILED;
+                else
+                    return REMOTE_AND_LOCAL_SOURCE_FAILED;
         }
 
         public boolean haveRemoteSourceFailed() {
@@ -46,7 +42,7 @@ public final class FountainDataRepository {
             return this == LOCAL_DATA_SOURCE_FAILED || this == REMOTE_AND_LOCAL_SOURCE_FAILED;
         }
 
-        public boolean isSuccessfull() {
+        public boolean isSuccessful() {
             return this == NO_ERROR;
         }
     }
@@ -90,10 +86,11 @@ public final class FountainDataRepository {
             // priority over online data
             if (SettingsParameters.SYNC_LOCAL_WITH_UPSTREAM_DB)
                 Transformations.map(sanitizedRemoteData, localDatabase::insertAll);
-//                sanitizedRemoteData.observe(activity, localDatabase::insertAll);
             return sanitizedRemoteData;
-        } else
+        } else {
+            Log.d(TAG, "Less than fives minutes have elapsed since last API call. Fetching from local datasource...");
             return localDatabase.scanWithinBorders(ne, sw);
+        }
     }
 
     private boolean fiveMinutesHasElapsedFromPreviousAPICall(long currentTime) {

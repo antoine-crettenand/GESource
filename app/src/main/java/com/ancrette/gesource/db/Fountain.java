@@ -101,7 +101,7 @@ public final class Fountain implements ClusterItem {
     @Nullable
     @Override
     public String getSnippet() {
-        if (address.isEmpty())
+        if (address == null || address.isEmpty())
             return String.format(Locale.GERMAN, "(%.2f, %.2f)", getPosition().latitude, getPosition().longitude);
         else
             return address;
