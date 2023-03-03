@@ -16,6 +16,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+
 public class AWSRemoteInterface extends RemoteDataSourceWithBackup {
     private static final String TAG = AWSRemoteInterface.class.getSimpleName();
 

@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Fountain.class}, version = 11)
+@Database(entities = {Fountain.class}, version = 12)
 public abstract class AppDatabase extends RoomDatabase implements LocalDatabase {
     private static final String TAG = AppDatabase.class.getSimpleName();
 

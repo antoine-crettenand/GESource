@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-gesource-dev-231159-authRole",
+      "UnauthRoleArn": "arn:aws:iam::174234023338:role/amplify-gesource-dev-231159-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::174234023338:role/amplify-gesource-dev-231159-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-gesource-dev-231159-deployment",
+      "UnauthRoleName": "amplify-gesource-dev-231159-unauthRole",
+      "StackName": "amplify-gesource-dev-231159",
+      "StackId": "arn:aws:cloudformation:us-east-1:174234023338:stack/amplify-gesource-dev-231159/03fce2b0-c801-11ec-b26b-0e5c5ed49289",
+      "AmplifyAppId": "d1ovs30c9s933b"
+    },
+    "categories": {
+      "auth": {
+        "GESource": {}
+      }
+    }
+  }
+}

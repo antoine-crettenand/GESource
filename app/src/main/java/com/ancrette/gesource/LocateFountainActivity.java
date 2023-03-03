@@ -91,7 +91,7 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
         updateLocationUI();
 
         // scan for all fountains
-        populateMapWithFountains(new LatLngBounds(new LatLng(-90, -180), new LatLng(90,179)));
+        populateMapWithFountains(new LatLngBounds(new LatLng(-90, -180), new LatLng(90, 179)));
     }
 
     public void populateMapWithFountains(LatLngBounds latLngBounds) {
@@ -116,12 +116,12 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
         //actionBar.setSubtitle("   Design a custom Action Bar");
 
         // adding icon in the ActionBar.
-     //   actionBar.setIcon(R.mipmap.app_icon_foreground);
+        //   actionBar.setIcon(R.mipmap.app_icon_foreground);
         //   actionBar.setLogo(R.mipmap.app_icon_foreground);
 
         // methods to display the icon in the ActionBar
-      //  actionBar.setDisplayUseLogoEnabled(true);
-     //   actionBar.setDisplayShowHomeEnabled(true);
+        //  actionBar.setDisplayUseLogoEnabled(true);
+        //   actionBar.setDisplayShowHomeEnabled(true);
     }
 
     // method to inflate the options menu when
@@ -139,7 +139,7 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
         if (item.getItemId() == R.id.search) {
             new MaterialDialog.Builder(this)
                     .title("Suggest a (not-listed) fountain")
-                    .content("It seems that you found an unregistered fountain! Make sure you have provided a name & stand next to it before submitting.")
+                    .content("It seems that you found an unregistered fountain! Make sure you have provided a name & stand close to it before submitting.")
                     .input("Fountain's name", "", false, (dialog, input) -> {
                         EditText inputEditText = dialog.getInputEditText();
                         if (inputEditText != null) {

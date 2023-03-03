@@ -20,7 +20,6 @@ app/src/main/graphql/
 app/src/main/java/com/amplifyframework/
 
 #amplify-do-not-edit-begin
-amplify/
 amplify/\#current-cloud-backend
 amplify/.config/local-*
 amplify/logs
@@ -41,3 +40,5 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
+.aws/
+app/release/

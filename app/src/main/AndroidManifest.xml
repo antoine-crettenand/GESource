@@ -26,7 +26,8 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB4lI62k6bDvHiyxJyvux9OzADkqlwlczk" />
 
-        <activity android:name="com.ancrette.gesource.LocateFountainActivity">
+        <activity android:name="com.ancrette.gesource.LocateFountainActivity" android:exported="true"
+                  android:theme="@style/Theme.Design.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

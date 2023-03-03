@@ -1,0 +1,12 @@
+type AWSFountain @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  title: String!
+  latitude: Float!
+  longitude: Float!
+  address: String
+  time: String
+  nbottles: Int
+  img: String
+  active: Boolean
+}
+  
