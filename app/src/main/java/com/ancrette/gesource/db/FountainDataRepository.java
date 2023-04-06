@@ -27,11 +27,10 @@ public final class FountainDataRepository {
                     return NO_ERROR;
                 else
                     return REMOTE_DATA_SOURCE_FAILED;
+            else if (remote)
+                return LOCAL_DATA_SOURCE_FAILED;
             else
-                if (remote)
-                    return LOCAL_DATA_SOURCE_FAILED;
-                else
-                    return REMOTE_AND_LOCAL_SOURCE_FAILED;
+                return REMOTE_AND_LOCAL_SOURCE_FAILED;
         }
 
         public boolean haveRemoteSourceFailed() {
@@ -73,12 +72,23 @@ public final class FountainDataRepository {
         );
     }
 
+    public LiveData<RequestErrorStatus> delete(Fountain f) {
+        return Transformations.switchMap(localDatabase.delete(f),
+                localSuccess -> {
+                    if (localSuccess)
+                        return Transformations.map(remoteDataSource.delete(f),
+                                remoteSuccess -> RequestErrorStatus.valueOf(true, remoteSuccess));
+                    else
+                        return new MutableLiveData<>(RequestErrorStatus.valueOf(false, false));
+                }
+        );
+    }
+
     public LiveData<Collection<Fountain>> scan(LatLng ne, LatLng sw) {
         long currentTime = System.currentTimeMillis();
         if (fiveMinutesHasElapsedFromPreviousAPICall(currentTime)) {
             Log.d(TAG, "More than five minutes have elapsed. Fetching from remote datasource...");
             LiveData<Collection<Fountain>> remoteData = remoteDataSource.scanWithinBorders(ne, sw);
-            MS_ELAPSED_FROM_PREVIOUS_API_CALL = currentTime;
 
             // sanitize data
             LiveData<Collection<Fountain>> sanitizedRemoteData = Transformations.map(remoteData, dataSanitizer::sanitize);
@@ -94,6 +104,8 @@ public final class FountainDataRepository {
     }
 
     private boolean fiveMinutesHasElapsedFromPreviousAPICall(long currentTime) {
-        return currentTime - MS_ELAPSED_FROM_PREVIOUS_API_CALL > 5 * ONE_MINUTE_IN_MS;
+        boolean ret = currentTime - MS_ELAPSED_FROM_PREVIOUS_API_CALL > 5 * ONE_MINUTE_IN_MS;
+        if (ret) MS_ELAPSED_FROM_PREVIOUS_API_CALL = currentTime;
+        return ret;
     }
 }

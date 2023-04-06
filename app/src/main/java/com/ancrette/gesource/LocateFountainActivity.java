@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.ancrette.gesource.db.Fountain;
 import com.ancrette.gesource.db.FountainDataRepository;
@@ -78,6 +79,20 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
     public void onMapReady(GoogleMap googleMap) {
         this.map = googleMap;
         this.clusterManager = new ClusterManager<>(this, map);
+
+        clusterManager.setOnClusterItemInfoWindowLongClickListener(item -> new MaterialDialog.Builder(this)
+                .title("Do you want to remove this fountain ?")
+                .onPositive((dialog, which) -> {
+                    Log.d(TAG, "Deleting fountain " + item.toString());
+                    fountainDataRepository.delete(item).observe(this, requestErrorStatus -> {
+                        if (requestErrorStatus.isSuccessful())
+                            clusterManager.removeItem(item);
+                    });
+                })
+                .positiveText("Yes")
+                .negativeText("Cancel")
+                .show());
+
         map.setOnCameraIdleListener(clusterManager);
         map.setOnMarkerClickListener(clusterManager);
 
@@ -97,9 +112,9 @@ public class LocateFountainActivity extends AppCompatActivity implements OnMapRe
     public void populateMapWithFountains(LatLngBounds latLngBounds) {
         // Query the repository for all surrounding fountains
         fountainDataRepository.scan(latLngBounds.southwest, latLngBounds.northeast).observe(this, collection -> {
-            if (collection.isEmpty())
+         /*   if (collection.isEmpty())
                 Toast.makeText(this, "An error occurred loading your fountains!", Toast.LENGTH_LONG).show();
-            else
+            else*/
                 clusterManager.addItems(collection);
         });
     }
