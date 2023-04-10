@@ -56,6 +56,21 @@ public class AWSRemoteInterface extends RemoteDataSourceWithBackup {
         return success;
     }
 
+    @Override
+    public LiveData<Boolean> delete(Fountain fountain) {
+        MutableLiveData<Boolean> success = new MutableLiveData<>();
+        fountain.active = false;
+        AWSFountain f = castFountainToAWSFountain(fountain);
+        Amplify.API.mutate(ModelMutation.update(f), response -> {
+            Log.d(TAG, String.format(Locale.FRENCH, "Fountain with id: %s with coordinates (%f, %f)", response.getData().getId(), response.getData().getLatitude(), response.getData().getLongitude()));
+            success.postValue(true);
+        }, error -> {
+            Log.e(TAG, "Create failed", error);
+            success.postValue(false);
+        });
+        return success;
+    }
+
     private static Collection<Fountain> AWSFountainsToFountains(Iterable<AWSFountain> awsFountains){
         List<Fountain> queryAnswer = new ArrayList<>();
         for (AWSFountain f : awsFountains)

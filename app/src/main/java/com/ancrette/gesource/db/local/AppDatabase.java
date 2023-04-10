@@ -25,13 +25,16 @@ public abstract class AppDatabase extends RoomDatabase implements LocalDatabase 
         return selectAllWithinSquare(ne, sw);
     }
 
-    public LiveData<Boolean> insertAll(Collection<Fountain> fountains) {
-        return new MutableLiveData<>(insertAllHelper(fountains));
-    }
 
     @Override
     synchronized public LiveData<Boolean> insert(Fountain f) {
         return insertAll(Collections.<Fountain>singleton(f));
+    }
+
+    @Override
+    public LiveData<Boolean> delete(Fountain f) {
+        f.active = false;
+        return insert(f);
     }
 
     private LiveData<Collection<Fountain>> selectAllWithinSquare(LatLng sw, LatLng ne) {
@@ -39,10 +42,14 @@ public abstract class AppDatabase extends RoomDatabase implements LocalDatabase 
             List<Fountain> filtered = new ArrayList<>();
             for (Fountain f : input)
                 // query only visible fountains
-                if (sw.latitude <= f.latitude && f.latitude <= ne.latitude && sw.longitude <= f.longitude && f.longitude <= ne.longitude)
+                if (sw.latitude <= f.latitude && f.latitude <= ne.latitude && sw.longitude <= f.longitude && f.longitude <= ne.longitude && f.active)
                     filtered.add(f);
             return filtered;
         });
+    }
+
+    public LiveData<Boolean> insertAll(Collection<Fountain> fountains) {
+        return new MutableLiveData<>(insertAllHelper(fountains));
     }
 
     private synchronized boolean insertAllHelper(Collection<Fountain> fountains) {

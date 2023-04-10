@@ -13,5 +13,7 @@ public interface LocalDatabase {
 
     LiveData<Boolean> insert(Fountain f);
 
+    LiveData<Boolean> delete(Fountain f);
+
     LiveData<Boolean> insertAll(Collection<Fountain> fountains);
 }

@@ -13,4 +13,6 @@ public interface RemoteDataSource {
     LiveData<Collection<Fountain>> scanWithinBorders(LatLng ne, LatLng sw);
 
     LiveData<Boolean> insert(Fountain fountain);
+
+    LiveData<Boolean> delete(Fountain fountain);
 }

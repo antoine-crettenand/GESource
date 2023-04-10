@@ -62,6 +62,11 @@ public class GESoifScrapper implements RemoteDataSource {
         return mutableLiveData;
     }
 
+    @Override
+    public LiveData<Boolean> delete(Fountain fountain) {
+        return new MutableLiveData<>(true);
+    }
+
     synchronized private LiveData<Collection<Fountain>> scanWithinBorders(double swLat, double swLong, double neLat, double neLong) {
         MutableLiveData<Collection<Fountain>> mutableLiveData = new MutableLiveData<>();
         String path = String.format(Locale.FRENCH, GET_API_STRING_FORMAT, swLat, swLong, neLat, neLong);
