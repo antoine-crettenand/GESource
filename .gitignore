@@ -42,3 +42,4 @@ amplifytools.xcconfig
 #amplify-do-not-edit-end
 .aws/
 app/release/
+/amplify/
